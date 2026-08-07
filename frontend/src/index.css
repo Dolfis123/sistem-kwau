@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { @apply bg-kabut text-tinta font-sans antialiased; }
+  h1, h2, h3 { @apply font-display; }
+  /* Aksesibilitas: fokus keyboard selalu terlihat */
+  :focus-visible { @apply outline-none ring-2 ring-emas ring-offset-2 ring-offset-kabut; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
+}
+
+@layer components {
+  .eyebrow { @apply text-[11px] font-bold uppercase tracking-[0.22em] text-emas-dark; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-emas { @apply btn bg-emas text-hutan-950 hover:bg-emas-light hover:-translate-y-0.5 shadow-md shadow-emas/30; }
+  .btn-hutan { @apply btn bg-hutan-800 text-kabut hover:bg-hutan-700 hover:-translate-y-0.5; }
+  .btn-garis { @apply btn border-2 border-hutan-800 text-hutan-900 hover:bg-hutan-900 hover:text-kabut; }
+  .input { @apply w-full rounded-xl border border-hutan-900/15 bg-white px-4 py-2.5 text-sm placeholder:text-tinta/40 focus:border-emas focus:ring-1 focus:ring-emas outline-none transition; }
+  .label { @apply mb-1.5 block text-xs font-bold uppercase tracking-wider text-hutan-900/70; }
+  .kartu { @apply rounded-2xl bg-white shadow-kartu overflow-hidden; }
+}
+
+/* Perbaikan tampilan popup Leaflet agar senada */
+.leaflet-popup-content-wrapper { border-radius: 14px !important; }
