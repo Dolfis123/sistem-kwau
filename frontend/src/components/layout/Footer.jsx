@@ -18,7 +18,7 @@ export default function Footer() {
               <Logo ukuran="h-10 w-10" />
               <div>
                 <p className="font-display text-lg font-semibold">Kampung Wisata Kwau</p>
-                <p className="text-[10px] uppercase tracking-[0.22em] text-kabut/50">Distrik Warmare · Manokwari</p>
+                <p className="text-[10px] uppercase tracking-[0.22em] text-kabut/50">Distrik Mokwam · Manokwari</p>
               </div>
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-kabut/60">
@@ -39,7 +39,7 @@ export default function Footer() {
           <div>
             <p className="eyebrow !text-emas-light">Hubungi Kami</p>
             <ul className="mt-4 space-y-2.5 text-sm text-kabut/70">
-              <li>Kampung Kwau, Distrik Warmare,<br />Kabupaten Manokwari, Papua Barat</li>
+              <li>Kampung Kwau, Distrik Mokwam,<br />Kabupaten Manokwari, Papua Barat</li>
               {pengaturan?.wa_utama && (
                 <li>
                   <a href={`https://wa.me/${pengaturan.wa_utama}`} target="_blank" rel="noreferrer" className="font-semibold text-emas-light hover:underline">
