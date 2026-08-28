@@ -17,7 +17,7 @@ async function createFirstSuperadmin() {
       process.exit(0);
     }
 
-    const passwordLengkap = 'SuperRahasia123!';
+    const passwordLengkap = 'admin12345678!';
     const password_hash = await bcrypt.hash(passwordLengkap, 10);
 
     await Admin.create({

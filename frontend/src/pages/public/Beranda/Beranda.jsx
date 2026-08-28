@@ -34,9 +34,10 @@ export default function Beranda() {
 
         <div className="relative mx-auto grid w-full max-w-7xl items-center gap-12 px-4 pb-24 pt-32 sm:px-6 lg:grid-cols-[1.5fr_1fr]">
           <div>
-            <p className="eyebrow !text-emas-light">Distrik Warmare · Kabupaten Manokwari · Papua Barat</p>
+            <p className="eyebrow !text-emas-light">Distrik Mokwam · Kabupaten Manokwari · Papua Barat</p>
             <h1 className="mt-4 max-w-3xl text-4xl font-semibold leading-[1.08] text-kabut sm:text-6xl lg:text-6xl">
-              Tanah tempat <span className="italic text-emas-light">Cenderawasih</span> menari setiap pagi
+             Hutan adalah 
+ <span className="italic text-emas-light"> mesin pencetak</span> uang bagi masyarakat
             </h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-kabut/70 sm:text-lg">
               Kampung Kwau di kaki Pegunungan Arfak adalah rumah bagi Burung Pintar (Vogelkop Bowerbird) dan Cenderawasih.
