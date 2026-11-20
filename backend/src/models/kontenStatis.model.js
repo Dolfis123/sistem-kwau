@@ -6,5 +6,7 @@ module.exports = sequelize.define('KontenStatis', {
   slug: { type: DataTypes.STRING(100), allowNull: false, unique: true },
   judul: { type: DataTypes.STRING(150), allowNull: false },
   isi: { type: DataTypes.TEXT, allowNull: false },
+  judul_en: { type: DataTypes.STRING(150) },
+  isi_en: { type: DataTypes.TEXT },
   updated_by: { type: DataTypes.INTEGER, allowNull: true },
 }, { tableName: 'konten_statis' });

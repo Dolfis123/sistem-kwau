@@ -12,7 +12,7 @@ exports.listPublik = async (req, res, next) => {
       include: [{
         model: TokohPemandu, as: 'tokoh',
         where: { status_aktif: true }, required: false,
-        attributes: ['id', 'nama', 'jabatan', 'spesialisasi', 'no_wa', 'foto'],
+        attributes: ['id', 'nama', 'jabatan', 'jabatan_en', 'spesialisasi', 'spesialisasi_en', 'bahasa', 'no_wa', 'foto'],
       }],
     });
     return ok(res, rows);

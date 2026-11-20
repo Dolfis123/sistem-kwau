@@ -10,7 +10,18 @@ exports.listPublik = async (req, res, next) => {
     if (req.query.kategori) where.kategori = req.query.kategori;
     const { rows, count } = await BeritaKonservasi.findAndCountAll({
       where, limit, offset, order: [['tanggal_terbit', 'DESC']],
-      attributes: ['id', 'judul', 'kategori', 'foto_sampul', 'tanggal_terbit'],
+      attributes: ['id', 'judul', 'judul_en', 'kategori', 'foto_sampul', 'tanggal_terbit'],
+    });
+    return ok(res, rows, 'Berhasil', 200, buildMeta(count, page, limit));
+  } catch (err) { next(err); }
+};
+
+// ADMIN: daftar lengkap (termasuk isi) agar form edit terisi penuh
+exports.listAdmin = async (req, res, next) => {
+  try {
+    const { page, limit, offset } = getPagination(req, 10);
+    const { rows, count } = await BeritaKonservasi.findAndCountAll({
+      limit, offset, order: [['tanggal_terbit', 'DESC']],
     });
     return ok(res, rows, 'Berhasil', 200, buildMeta(count, page, limit));
   } catch (err) { next(err); }

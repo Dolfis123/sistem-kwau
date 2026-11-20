@@ -3,6 +3,7 @@ const { PaketWisata, PaketFoto, PaketKetersediaan } = require('../models');
 const { ok, fail } = require('../utils/apiResponse');
 const { getPagination, buildMeta } = require('../utils/pagination');
 const { saveImage, deleteImage } = require('../utils/imageProcessor');
+const { pesan } = require('../utils/bahasa');
 
 // ===== PUBLIK =====
 exports.listPublik = async (req, res, next) => {
@@ -14,7 +15,7 @@ exports.listPublik = async (req, res, next) => {
 
     const { rows, count } = await PaketWisata.findAndCountAll({
       where, limit, offset, order: [['created_at', 'DESC']],
-      attributes: ['id', 'nama', 'kategori', 'harga', 'durasi', 'kapasitas', 'foto_cover'],
+      attributes: ['id', 'nama', 'nama_en', 'kategori', 'durasi', 'durasi_en', 'kapasitas', 'foto_cover'], // harga internal, tidak dikirim ke publik
     });
     return ok(res, rows, 'Berhasil', 200, buildMeta(count, page, limit));
   } catch (err) { next(err); }
@@ -24,6 +25,7 @@ exports.detailPublik = async (req, res, next) => {
   try {
     const paket = await PaketWisata.findOne({
       where: { id: req.params.id, status: 'aktif' },
+      attributes: { exclude: ['harga', 'admin_id'] }, // harga internal saja
       include: [
         { model: PaketFoto, as: 'foto', attributes: ['id', 'url_foto', 'urutan'] },
         {
@@ -35,7 +37,7 @@ exports.detailPublik = async (req, res, next) => {
       ],
       order: [[{ model: PaketFoto, as: 'foto' }, 'urutan', 'ASC']],
     });
-    if (!paket) return fail(res, 'Paket tidak ditemukan.', 404);
+    if (!paket) return fail(res, pesan(req, 'Paket tidak ditemukan.', 'Tour package not found.'), 404);
     return ok(res, paket);
   } catch (err) { next(err); }
 };

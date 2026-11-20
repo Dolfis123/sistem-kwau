@@ -1,11 +1,12 @@
 const { KontakPesan } = require('../models');
 const { ok, fail } = require('../utils/apiResponse');
 const { getPagination, buildMeta } = require('../utils/pagination');
+const { pesan: teks } = require('../utils/bahasa');
 
 exports.create = async (req, res, next) => {
   try {
     await KontakPesan.create({ nama: req.body.nama, email: req.body.email || null, pesan: req.body.pesan });
-    return ok(res, null, 'Pesan Anda telah terkirim. Terima kasih!', 201);
+    return ok(res, null, teks(req, 'Pesan Anda telah terkirim. Terima kasih!', 'Your message has been sent. Thank you!'), 201);
   } catch (err) { next(err); }
 };
 

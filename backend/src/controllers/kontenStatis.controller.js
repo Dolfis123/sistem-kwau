@@ -17,9 +17,11 @@ exports.listAdmin = async (req, res, next) => {
 
 exports.upsert = async (req, res, next) => {
   try {
-    const { slug, judul, isi } = req.body;
+    const { slug, judul, isi, judul_en, isi_en } = req.body;
     if (!slug || !judul || !isi) return fail(res, 'slug, judul, dan isi wajib diisi.', 422);
-    const [konten] = await KontenStatis.upsert({ slug, judul, isi, updated_by: req.admin.id });
+    const [konten] = await KontenStatis.upsert({
+      slug, judul, isi, judul_en: judul_en || null, isi_en: isi_en || null, updated_by: req.admin.id,
+    });
     return ok(res, konten, 'Konten berhasil disimpan.');
   } catch (err) { next(err); }
 };

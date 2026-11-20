@@ -3,9 +3,10 @@
 @tailwind utilities;
 
 @layer base {
-  html { scroll-behavior: smooth; }
-  body { @apply bg-kabut text-tinta font-sans antialiased; }
-  h1, h2, h3 { @apply font-display; }
+  html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+  body { @apply bg-kabut text-tinta font-sans antialiased; font-feature-settings: 'ss01', 'cv11'; }
+  h1, h2, h3 { @apply font-display; font-optical-sizing: auto; letter-spacing: -0.015em; }
+  ::selection { @apply bg-emas/30 text-hutan-950; }
   /* Aksesibilitas: fokus keyboard selalu terlihat */
   :focus-visible { @apply outline-none ring-2 ring-emas ring-offset-2 ring-offset-kabut; }
   @media (prefers-reduced-motion: reduce) {
@@ -15,15 +16,48 @@
 }
 
 @layer components {
-  .eyebrow { @apply text-[11px] font-bold uppercase tracking-[0.22em] text-emas-dark; }
-  .btn { @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed; }
-  .btn-emas { @apply btn bg-emas text-hutan-950 hover:bg-emas-light hover:-translate-y-0.5 shadow-md shadow-emas/30; }
-  .btn-hutan { @apply btn bg-hutan-800 text-kabut hover:bg-hutan-700 hover:-translate-y-0.5; }
-  .btn-garis { @apply btn border-2 border-hutan-800 text-hutan-900 hover:bg-hutan-900 hover:text-kabut; }
-  .input { @apply w-full rounded-xl border border-hutan-900/15 bg-white px-4 py-2.5 text-sm placeholder:text-tinta/40 focus:border-emas focus:ring-1 focus:ring-emas outline-none transition; }
+  /* Tata letak */
+  .wadah { @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8; }
+  .bagian { @apply py-20 lg:py-28; }
+
+  /* Tipografi */
+  .eyebrow { @apply inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-lebar text-emas-dark; }
+  .eyebrow::before { content: ''; @apply h-px w-8 bg-current opacity-60; }
+  .judul-bagian { @apply mt-4 text-3xl font-medium leading-[1.12] text-hutan-950 sm:text-4xl lg:text-[2.75rem]; }
+  .teks-bagian { @apply mt-4 text-base leading-relaxed text-tinta/65 sm:text-lg; }
+
+  /* Tombol */
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-bold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-emas { @apply btn bg-emas text-hutan-950 shadow-[0_8px_24px_-10px_rgba(201,134,44,.7)] hover:bg-emas-light hover:-translate-y-0.5; }
+  .btn-hutan { @apply btn bg-hutan-900 text-kabut hover:bg-hutan-800 hover:-translate-y-0.5; }
+  .btn-garis { @apply btn border border-hutan-900/20 bg-white/60 text-hutan-900 hover:border-hutan-900 hover:bg-hutan-900 hover:text-kabut; }
+  .btn-terang { @apply btn border border-white/30 text-white backdrop-blur-sm hover:bg-white hover:text-hutan-950; }
+  .btn-wa { @apply btn bg-[#1f9d55] text-white hover:bg-[#178a49]; }
+  .tautan { @apply inline-flex items-center gap-1.5 text-sm font-bold text-hutan-800 underline decoration-emas/60 decoration-2 underline-offset-4 transition hover:text-emas-dark hover:decoration-emas; }
+
+  /* Form */
+  .input { @apply w-full rounded-xl border border-hutan-900/15 bg-white px-4 py-3 text-sm text-tinta outline-none transition placeholder:text-tinta/35 focus:border-emas focus:ring-4 focus:ring-emas/15; }
   .label { @apply mb-1.5 block text-xs font-bold uppercase tracking-wider text-hutan-900/70; }
-  .kartu { @apply rounded-2xl bg-white shadow-kartu overflow-hidden; }
+
+  /* Kartu & chip */
+  .kartu { @apply overflow-hidden rounded-3xl bg-white shadow-kartu ring-1 ring-hutan-900/[.06]; }
+  .kartu-hover { @apply transition duration-300 hover:-translate-y-1 hover:shadow-angkat; }
+  .chip { @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider; }
+  .chip-gelap { @apply chip bg-hutan-950/80 text-emas-light backdrop-blur; }
+  .filter-pil { @apply rounded-full px-5 py-2.5 text-sm font-semibold transition; }
+  .filter-aktif { @apply bg-hutan-900 text-kabut shadow-sm; }
+  .filter-pasif { @apply bg-white text-hutan-900 ring-1 ring-hutan-900/10 hover:ring-hutan-900/30; }
+
+  /* Ikon dalam lingkaran */
+  .ikon-bulat { @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-hutan-100/70 text-hutan-800; }
 }
 
-/* Perbaikan tampilan popup Leaflet agar senada */
-.leaflet-popup-content-wrapper { border-radius: 14px !important; }
+@layer utilities {
+  .tanpa-scrollbar { scrollbar-width: none; }
+  .tanpa-scrollbar::-webkit-scrollbar { display: none; }
+  .teks-bayangan { text-shadow: 0 2px 24px rgba(0, 0, 0, .35); }
+}
+
+/* Popup Leaflet agar senada */
+.leaflet-popup-content-wrapper { border-radius: 16px !important; }
+.leaflet-container { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }

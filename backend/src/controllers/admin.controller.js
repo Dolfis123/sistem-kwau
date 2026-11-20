@@ -7,23 +7,6 @@ const bcrypt = require('bcryptjs');
 const { Admin } = require('../models');
 const { ok, fail } = require('../utils/apiResponse');
 
-
-const adminService = require('../services/auth.service');
-
-exports.create = async (req, res, next) => {
-  try {
-    const hasil = await adminService.createAdmin(req.body);
-    
-    // Jangan kembalikan password_hash ke response API demi keamanan
-    const { password_hash, ...adminData } = hasil.toJSON();
-    
-    return ok(res, adminData, 'Akun admin berhasil dibuat.');
-  } catch (err) { 
-    next(err); 
-  }
-};
-
-// Jangan lupa untuk menambahkan method lain seperti list, update, resetPassword yang ada di routes Anda.
 exports.list = async (req, res, next) => {
   try {
     return ok(res, await Admin.findAll({ attributes: { exclude: ['password_hash'] }, order: [['created_at', 'ASC']] }));

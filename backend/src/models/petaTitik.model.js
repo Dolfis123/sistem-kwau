@@ -8,6 +8,8 @@ module.exports = sequelize.define('PetaTitik', {
   latitude: { type: DataTypes.DECIMAL(10, 7), allowNull: false },
   longitude: { type: DataTypes.DECIMAL(10, 7), allowNull: false },
   deskripsi: { type: DataTypes.TEXT },
+  nama_en: { type: DataTypes.STRING(100) },
+  deskripsi_en: { type: DataTypes.TEXT },
   foto: { type: DataTypes.STRING(255) },
   status_aktif: { type: DataTypes.BOOLEAN, defaultValue: true },
 }, { tableName: 'peta_titik' });

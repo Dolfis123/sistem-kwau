@@ -7,14 +7,16 @@
 //    pending > 48 jam), kuota DIKEMBALIKAN.
 // 3. Semua dijalankan dalam satu transaksi + row lock, sehingga dua turis
 //    yang memesan bersamaan tidak bisa merebut slot yang sama.
-const { sequelize, Reservasi, PaketWisata, PaketKetersediaan } = require('../models');
+const { sequelize, Reservasi, PaketWisata, PaketKetersediaan, PengaturanSistem } = require('../models');
 const waMessageBuilder = require('../utils/waMessageBuilder');
 
 exports.create = async (data) => {
+  const en = data.bahasa === 'en';
+  const galat = (id, eng, status) => { const err = new Error(en ? eng : id); err.status = status; return err; };
   return sequelize.transaction(async (t) => {
     const paket = await PaketWisata.findByPk(data.paket_wisata_id, { transaction: t });
     if (!paket || paket.status !== 'aktif') {
-      const err = new Error('Paket wisata tidak ditemukan atau sedang nonaktif.'); err.status = 404; throw err;
+      throw galat('Paket wisata tidak ditemukan atau sedang nonaktif.', 'This tour package is not available.', 404);
     }
 
     // Ambil/buat baris ketersediaan untuk tanggal tsb, dengan lock baris
@@ -33,11 +35,12 @@ exports.create = async (data) => {
     }
 
     if (slot.status === 'ditutup') {
-      const err = new Error('Tanggal tersebut ditutup untuk reservasi.'); err.status = 409; throw err;
+      throw galat('Tanggal tersebut ditutup untuk reservasi.', 'This date is closed for bookings. Please choose another date.', 409);
     }
     if (slot.kuota_tersedia < data.jumlah_peserta) {
-      const err = new Error(`Kuota tanggal tersebut tidak cukup (tersisa ${slot.kuota_tersedia} slot).`);
-      err.status = 409; throw err;
+      throw galat(
+        `Kuota tanggal tersebut tidak cukup (tersisa ${slot.kuota_tersedia} slot).`,
+        `Not enough space on this date (${slot.kuota_tersedia} spot(s) left).`, 409);
     }
 
     slot.kuota_tersedia -= data.jumlah_peserta;
@@ -51,12 +54,20 @@ exports.create = async (data) => {
       jumlah_peserta: data.jumlah_peserta,
       tanggal_kunjungan: data.tanggal_kunjungan,
       catatan: data.catatan || null,
+      bahasa: en ? 'en' : 'id',
+      negara: data.negara || null,
       status: 'pending',
     }, { transaction: t });
 
+    // Satu sumber nomor WA: menu Pengaturan (sama dengan tombol "Tanya Harga" di frontend)
+    const waUtama = await PengaturanSistem.findByPk('wa_utama', { transaction: t });
+
     const waLink = waMessageBuilder({
+      nomorWa: waUtama?.value,
       namaTuris: reservasi.nama_turis,
-      namaPaket: paket.nama,
+      namaPaket: (en && paket.nama_en) || paket.nama,
+      negara: data.negara,
+      bahasa: en ? 'en' : 'id',
       tanggal: reservasi.tanggal_kunjungan,
       jumlahPeserta: reservasi.jumlah_peserta,
       kodeReservasi: reservasi.id,

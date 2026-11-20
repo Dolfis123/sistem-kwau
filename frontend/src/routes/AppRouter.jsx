@@ -16,6 +16,7 @@ import DetailInformasi from '../pages/public/Informasi/DetailInformasi';
 import JejakWisatawan from '../pages/public/JejakWisatawan/JejakWisatawan';
 import Faq from '../pages/public/FAQ/Faq';
 import Kontak from '../pages/public/Kontak/Kontak';
+import TidakDitemukan from '../pages/public/TidakDitemukan';
 
 // Dashboard admin
 import Login from '../pages/admin/Login';
@@ -81,13 +82,7 @@ export default function AppRouter() {
           </Route>
         </Route>
 
-        <Route path="*" element={
-          <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-hutan-950 text-kabut">
-            <p className="font-display text-6xl font-semibold text-emas">404</p>
-            <p>Halaman tidak ditemukan.</p>
-            <a href="/" className="btn-emas">Kembali ke Beranda</a>
-          </div>
-        } />
+        <Route path="*" element={<TidakDitemukan />} />
       </Routes>
     </ToastProvider>
   );

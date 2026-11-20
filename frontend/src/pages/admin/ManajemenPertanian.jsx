@@ -4,6 +4,7 @@ import useFetch from '../../hooks/useFetch';
 import { pertanianApi } from '../../services/api';
 import AdminCrud from '../../components/common/AdminCrud';
 import { KATEGORI_PERTANIAN } from '../../constants';
+import { BAGIAN_INGGRIS } from '../../constants/bahasaInggris';
 
 export default function ManajemenPertanian() {
   const [page, setPage] = useState(1);
@@ -31,6 +32,11 @@ export default function ManajemenPertanian() {
           { name: 'harga_kisaran', label: 'Kisaran Harga', opsional: true, keterangan: 'Contoh: Rp15.000–20.000 / kg', setengah: true },
           { name: 'deskripsi', label: 'Deskripsi', type: 'textarea', opsional: true },
           { name: 'foto', label: 'Foto', type: 'file', opsional: true },
+          BAGIAN_INGGRIS,
+          { name: 'nama_en', label: 'Nama Produk (English)', opsional: true, keterangan: 'Contoh: Arfak Arabica Coffee' },
+          { name: 'bulan_panen_en', label: 'Bulan Panen (English)', opsional: true, keterangan: 'Contoh: May – September. Kalender panen tetap dibaca dari kolom Bahasa Indonesia.' },
+          { name: 'frekuensi_panen_en', label: 'Frekuensi Panen (English)', opsional: true, keterangan: 'Contoh: Harvested twice a year' },
+          { name: 'deskripsi_en', label: 'Deskripsi (English)', type: 'textarea', opsional: true },
         ]}
       />
     </div>

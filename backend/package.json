@@ -8,7 +8,8 @@
     "dev": "nodemon server.js",
     "seed": "node src/seed.js",
     "backup": "node scripts/backup.js",
-    "update-db": "node scripts/update-v2.js"
+    "update-db": "node scripts/update-v2.js",
+    "update-db-v3": "node scripts/update-v3.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

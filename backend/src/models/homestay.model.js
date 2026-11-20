@@ -7,6 +7,8 @@ module.exports = sequelize.define('Homestay', {
   nama_pemilik: { type: DataTypes.STRING(100) },
   deskripsi: { type: DataTypes.TEXT },
   fasilitas: { type: DataTypes.TEXT },
+  deskripsi_en: { type: DataTypes.TEXT },
+  fasilitas_en: { type: DataTypes.TEXT },
   harga_per_malam: { type: DataTypes.DECIMAL(10, 2), defaultValue: 0 },
   kapasitas: { type: DataTypes.INTEGER, defaultValue: 2 },
 }, { tableName: 'homestay' });

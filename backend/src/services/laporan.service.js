@@ -27,6 +27,8 @@ exports.exportReservasiExcel = async ({ dari, sampai, status }) => {
     { header: 'Kategori', key: 'kategori', width: 15 },
     { header: 'Tanggal Kunjungan', key: 'tanggal', width: 18 },
     { header: 'Jumlah Peserta', key: 'peserta', width: 15 },
+    { header: 'Bahasa', key: 'bahasa', width: 10 },
+    { header: 'Negara Asal', key: 'negara', width: 18 },
     { header: 'Status', key: 'status', width: 12 },
     { header: 'Dibuat', key: 'dibuat', width: 20 },
   ];
@@ -40,6 +42,8 @@ exports.exportReservasiExcel = async ({ dari, sampai, status }) => {
     kategori: r.paket ? r.paket.kategori : '-',
     tanggal: r.tanggal_kunjungan,
     peserta: r.jumlah_peserta,
+    bahasa: r.bahasa === 'en' ? 'Inggris' : 'Indonesia',
+    negara: r.negara || '-',
     status: r.status,
     dibuat: r.created_at ? new Date(r.created_at).toLocaleString('id-ID') : '',
   }));

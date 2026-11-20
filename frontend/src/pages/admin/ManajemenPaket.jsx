@@ -6,6 +6,7 @@ import Modal from '../../components/common/Modal';
 import ImgFallback from '../../components/common/ImgFallback';
 import { useToast } from '../../components/common/Toast';
 import { KATEGORI_PAKET } from '../../constants';
+import { BAGIAN_INGGRIS } from '../../constants/bahasaInggris';
 
 
 export default function ManajemenPaket() {
@@ -70,6 +71,7 @@ export default function ManajemenPaket() {
           { label: 'Kategori', render: (p) => KATEGORI_PAKET.find((k) => k.value === p.kategori)?.label },
           { label: 'Durasi', render: (p) => p.durasi || '-' },
           { label: 'Status', render: (p) => p.status },
+          { label: 'English', render: (p) => (p.deskripsi_en ? '✓ Ada' : '— Belum') },
         ]}
         fields={[
           { name: 'nama', label: 'Nama Paket' },
@@ -81,6 +83,11 @@ export default function ManajemenPaket() {
           { name: 'deskripsi', label: 'Deskripsi', type: 'textarea' },
           { name: 'itinerary', label: 'Itinerary', type: 'textarea', opsional: true, keterangan: 'Khusus paket trekking/kombinasi' },
           { name: 'foto_cover', label: 'Foto Cover', type: 'file', opsional: true },
+          BAGIAN_INGGRIS,
+          { name: 'nama_en', label: 'Nama Paket (English)', opsional: true, keterangan: 'Contoh: Bowerbird & Birds of Paradise Watching' },
+          { name: 'durasi_en', label: 'Durasi (English)', opsional: true, keterangan: 'Contoh: 2 days 1 night' },
+          { name: 'deskripsi_en', label: 'Deskripsi (English)', type: 'textarea', opsional: true },
+          { name: 'itinerary_en', label: 'Itinerary (English)', type: 'textarea', opsional: true },
         ]}
         aksiEkstra={(item) => (
           <button onClick={() => bukaKelola(item)} className="rounded-full bg-emas/20 px-3.5 py-1.5 text-xs font-bold text-emas-dark hover:bg-emas/30">

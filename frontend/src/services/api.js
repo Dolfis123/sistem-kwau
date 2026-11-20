@@ -79,6 +79,7 @@ export const satwaApi = {
 
 export const beritaApi = {
   list: (params) => api.get('/berita', { params }),
+  listAdmin: (params) => api.get('/berita/admin/semua', { params }),
   detail: (id) => api.get(`/berita/${id}`),
   create: (fd) => api.post('/berita', fd),
   update: (id, fd) => api.put(`/berita/${id}`, fd),

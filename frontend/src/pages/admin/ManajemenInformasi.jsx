@@ -8,12 +8,14 @@ import EditorStatis from '../../components/common/EditorStatis';
 import { formatTanggal } from '../../utils/format';
 import { KATEGORI_BERITA } from '../../constants';
 import { useAuth } from '../../context/AuthContext';
+import { BAGIAN_INGGRIS } from '../../constants/bahasaInggris';
 
 export default function ManajemenInformasi() {
   const { admin } = useAuth();
   const [tab, setTab] = useState('berita');
   const [page, setPage] = useState(1);
-  const berita = useFetch(() => beritaApi.list({ page, limit: 10 }), [page]);
+  // listAdmin memuat isi artikel lengkap agar form edit terisi penuh
+  const berita = useFetch(() => beritaApi.listAdmin({ page, limit: 10 }), [page]);
   const bolehProfil = admin?.role === 'superadmin' || admin?.role === 'pegawai_kampung';
 
   return (
@@ -51,6 +53,9 @@ export default function ManajemenInformasi() {
             { name: 'tanggal_terbit', label: 'Tanggal Terbit', type: 'date' },
             { name: 'isi', label: 'Isi Artikel', type: 'textarea', rows: 8 },
             { name: 'foto_sampul', label: 'Foto Sampul', type: 'file', opsional: true },
+            BAGIAN_INGGRIS,
+            { name: 'judul_en', label: 'Judul (English)', opsional: true },
+            { name: 'isi_en', label: 'Isi Artikel (English)', type: 'textarea', rows: 8, opsional: true },
           ]}
         />
       ) : (

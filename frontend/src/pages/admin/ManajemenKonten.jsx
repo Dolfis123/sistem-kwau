@@ -4,6 +4,7 @@ import useFetch from '../../hooks/useFetch';
 import { satwaApi, faqApi, homestayApi, galeriKampungApi } from '../../services/api';
 import AdminCrud from '../../components/common/AdminCrud';
 import EditorStatis from '../../components/common/EditorStatis';
+import { BAGIAN_INGGRIS } from '../../constants/bahasaInggris';
 
 const TAB = [
   ['satwa', 'Katalog Satwa'],
@@ -46,6 +47,7 @@ export default function ManajemenKonten() {
             { label: 'Nama Lokal', kuat: true, render: (s) => s.nama_lokal },
             { label: 'Nama Ilmiah', render: (s) => s.nama_ilmiah || '-' },
             { label: 'Status Konservasi', render: (s) => s.status_konservasi || '-' },
+            { label: 'English', render: (s) => (s.deskripsi_en ? '✓ Ada' : '— Belum') },
           ]}
           fields={[
             { name: 'nama_lokal', label: 'Nama Lokal' },
@@ -53,6 +55,9 @@ export default function ManajemenKonten() {
             { name: 'status_konservasi', label: 'Status Konservasi (IUCN)', opsional: true, keterangan: 'Contoh: Risiko Rendah (LC), Rentan (VU)' },
             { name: 'deskripsi', label: 'Deskripsi', type: 'textarea', opsional: true },
             { name: 'foto', label: 'Foto', type: 'file', opsional: true },
+            BAGIAN_INGGRIS,
+            { name: 'nama_en', label: 'Nama Umum (English)', opsional: true, keterangan: 'Contoh: Vogelkop Bowerbird, Western Parotia' },
+            { name: 'deskripsi_en', label: 'Deskripsi (English)', type: 'textarea', opsional: true },
           ]}
         />
       )}
@@ -74,6 +79,9 @@ export default function ManajemenKonten() {
             { name: 'fasilitas', label: 'Fasilitas', type: 'textarea', rows: 3, opsional: true, keterangan: 'Pisahkan dengan koma — di situs publik tampil sebagai daftar centang. Contoh: 2 kamar tidur, MCK dalam, makan 3x sehari' },
             { name: 'deskripsi', label: 'Deskripsi', type: 'textarea', rows: 3, opsional: true },
             { name: 'foto', label: 'Foto (bisa lebih dari satu)', type: 'file', multiple: true, opsional: true },
+            BAGIAN_INGGRIS,
+            { name: 'fasilitas_en', label: 'Fasilitas (English)', type: 'textarea', rows: 3, opsional: true, keterangan: 'Pisahkan dengan koma. Contoh: 2 bedrooms, private bathroom, 3 meals a day' },
+            { name: 'deskripsi_en', label: 'Deskripsi (English)', type: 'textarea', rows: 3, opsional: true },
           ]}
         />
       )}
@@ -91,6 +99,8 @@ export default function ManajemenKonten() {
             { name: 'judul', label: 'Judul Foto' },
             { name: 'urutan', label: 'Urutan Tampil', type: 'number', min: 0, default: 0 },
             { name: 'foto', label: 'Foto', type: 'file', opsional: true, keterangan: 'Wajib saat menambah baru; kosongkan saat edit jika tidak ganti foto.' },
+            BAGIAN_INGGRIS,
+            { name: 'judul_en', label: 'Judul Foto (English)', opsional: true },
           ]}
         />
       )}
@@ -100,6 +110,7 @@ export default function ManajemenKonten() {
           kolom={[
             { label: 'Kategori', render: (f) => f.kategori },
             { label: 'Pertanyaan', kuat: true, render: (f) => f.pertanyaan },
+            { label: 'English', render: (f) => (f.jawaban_en ? '✓ Ada' : '— Belum') },
             { label: 'Urutan', render: (f) => f.urutan },
           ]}
           fields={[
@@ -107,6 +118,9 @@ export default function ManajemenKonten() {
             { name: 'urutan', label: 'Urutan Tampil', type: 'number', min: 0, default: 0 },
             { name: 'pertanyaan', label: 'Pertanyaan', type: 'textarea', rows: 2 },
             { name: 'jawaban', label: 'Jawaban', type: 'textarea' },
+            BAGIAN_INGGRIS,
+            { name: 'pertanyaan_en', label: 'Pertanyaan (English)', type: 'textarea', rows: 2, opsional: true },
+            { name: 'jawaban_en', label: 'Jawaban (English)', type: 'textarea', opsional: true },
           ]}
         />
       )}

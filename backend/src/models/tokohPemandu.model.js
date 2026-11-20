@@ -8,6 +8,10 @@ module.exports = sequelize.define('TokohPemandu', {
   jabatan: { type: DataTypes.STRING(100) },
   spesialisasi: { type: DataTypes.STRING(100) },
   bio: { type: DataTypes.TEXT }, // V2: biodata singkat untuk profil publik
+  jabatan_en: { type: DataTypes.STRING(100) },
+  spesialisasi_en: { type: DataTypes.STRING(100) },
+  bio_en: { type: DataTypes.TEXT },
+  bahasa: { type: DataTypes.STRING(100) },        // bahasa yang dikuasai, mis. "Indonesia, English"
   no_wa: { type: DataTypes.STRING(20) },
   foto: { type: DataTypes.STRING(255) },
   status_aktif: { type: DataTypes.BOOLEAN, defaultValue: true },

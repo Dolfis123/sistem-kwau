@@ -24,13 +24,13 @@ export default function AdminCrud({
 
   const bukaTambah = () => {
     const kosong = {};
-    fields.forEach((f) => { kosong[f.name] = f.default ?? ''; });
+    fields.forEach((f) => { if (f.type !== 'bagian') kosong[f.name] = f.default ?? ''; });
     setForm(kosong); setFiles({}); setEdit(null); setBukaForm(true);
   };
 
   const bukaEdit = (item) => {
     const isi = {};
-    fields.forEach((f) => { if (f.type !== 'file') isi[f.name] = item[f.name] ?? ''; });
+    fields.forEach((f) => { if (f.type !== 'file' && f.type !== 'bagian') isi[f.name] = item[f.name] ?? ''; });
     setForm(isi); setFiles({}); setEdit(item); setBukaForm(true);
   };
 
@@ -41,7 +41,8 @@ export default function AdminCrud({
       let payload;
       if (pakaiFormData) {
         payload = new FormData();
-        Object.entries(form).forEach(([k, v]) => { if (v !== '' && v !== null) payload.append(k, v); });
+        // Kolom versi Inggris (_en) tetap dikirim walau kosong, agar terjemahan bisa dihapus
+        Object.entries(form).forEach(([k, v]) => { if ((v !== '' && v !== null) || k.endsWith('_en')) payload.append(k, v ?? ''); });
         Object.entries(files).forEach(([k, v]) => {
           if (Array.isArray(v)) v.forEach((f) => payload.append(k, f));
           else if (v) payload.append(k, v);
@@ -125,7 +126,12 @@ export default function AdminCrud({
       {/* Form tambah/edit */}
       <Modal buka={bukaForm} onTutup={() => setBukaForm(false)} judul={edit ? `Edit ${judul}` : `Tambah ${judul}`} lebar="max-w-xl">
         <form onSubmit={simpan} className="space-y-4">
-          {fields.map((f) => (
+          {fields.map((f) => f.type === 'bagian' ? (
+            <div key={f.label} className="!mt-7 rounded-2xl bg-sky-50 px-4 py-3 ring-1 ring-sky-100">
+              <p className="text-xs font-bold uppercase tracking-wider text-sky-800">{f.label}</p>
+              {f.keterangan && <p className="mt-0.5 text-[11px] leading-relaxed text-sky-900/60">{f.keterangan}</p>}
+            </div>
+          ) : (
             <div key={f.name} className={f.setengah ? 'inline-block w-[calc(50%-8px)] pr-2 align-top' : ''}>
               <label className="label" htmlFor={`f-${f.name}`}>{f.label}{f.opsional && <span className="normal-case text-tinta/40"> (opsional)</span>}</label>
               {f.type === 'textarea' ? (

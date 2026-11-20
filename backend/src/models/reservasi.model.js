@@ -9,5 +9,8 @@ module.exports = sequelize.define('Reservasi', {
   jumlah_peserta: { type: DataTypes.INTEGER, allowNull: false },
   tanggal_kunjungan: { type: DataTypes.DATEONLY, allowNull: false },
   catatan: { type: DataTypes.TEXT },
+  // Bahasa yang dipakai turis saat memesan → admin tahu harus membalas dalam bahasa apa
+  bahasa: { type: DataTypes.ENUM('id', 'en'), allowNull: false, defaultValue: 'id' },
+  negara: { type: DataTypes.STRING(60) },
   status: { type: DataTypes.ENUM('pending', 'lunas', 'selesai', 'batal'), allowNull: false, defaultValue: 'pending' },
 }, { tableName: 'reservasi' });

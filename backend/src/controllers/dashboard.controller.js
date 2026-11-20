@@ -1,5 +1,5 @@
 const { Op, fn, col, literal } = require('sequelize');
-const { Reservasi, GaleriUgc, ModerasiLog, Admin, PaketWisata } = require('../models');
+const { Reservasi, GaleriUgc, ModerasiLog, Admin, PaketWisata, Faq, Satwa, KontenStatis } = require('../models');
 const { ok } = require('../utils/apiResponse');
 
 exports.ringkasan = async (req, res, next) => {
@@ -49,8 +49,29 @@ exports.ringkasan = async (req, res, next) => {
       })),
     ].sort((a, b) => new Date(b.waktu) - new Date(a.waktu)).slice(0, 5);
 
+    // Turis berbahasa Inggris bulan ini (tidak termasuk yang batal)
+    const inggrisBulanIni = await Reservasi.count({
+      where: { bahasa: 'en', status: { [Op.ne]: 'batal' }, created_at: { [Op.gte]: awalBulan } },
+    });
+
+    // Kelengkapan terjemahan Inggris konten utama (agar admin tahu apa yang perlu diisi)
+    const belumEn = (field) => ({ [Op.or]: [{ [field]: null }, { [field]: '' }] });
+    const [paketTotal, paketBelum, faqTotal, faqBelum, satwaTotal, satwaBelum, kontenTotal, kontenBelum] = await Promise.all([
+      PaketWisata.count({ where: { status: 'aktif' } }),
+      PaketWisata.count({ where: { status: 'aktif', ...belumEn('deskripsi_en') } }),
+      Faq.count(), Faq.count({ where: belumEn('jawaban_en') }),
+      Satwa.count(), Satwa.count({ where: belumEn('deskripsi_en') }),
+      KontenStatis.count(), KontenStatis.count({ where: belumEn('isi_en') }),
+    ]);
+
     return ok(res, {
-      reservasi_bulan_ini: { pending: pendingBulanIni, lunas: lunasBulanIni },
+      reservasi_bulan_ini: { pending: pendingBulanIni, lunas: lunasBulanIni, bahasa_inggris: inggrisBulanIni },
+      terjemahan: [
+        { nama: 'Paket wisata (aktif)', total: paketTotal, belum: paketBelum, menu: '/admin/paket' },
+        { nama: 'FAQ', total: faqTotal, belum: faqBelum, menu: '/admin/konten' },
+        { nama: 'Katalog satwa', total: satwaTotal, belum: satwaBelum, menu: '/admin/konten' },
+        { nama: 'Halaman statis', total: kontenTotal, belum: kontenBelum, menu: '/admin/konten' },
+      ],
       antrean_moderasi: antreanModerasi,
       grafik_bulanan: grafik,
       aktivitas_terbaru: aktivitas,
