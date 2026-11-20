@@ -15,6 +15,9 @@ const muat = () => {
   return janji;
 };
 
+// Dipanggil setelah admin menyimpan Pengaturan agar situs memakai data terbaru
+export const resetPengaturan = () => { cache = null; janji = null; };
+
 export default function usePengaturan() {
   const [data, setData] = useState(cache);
   useEffect(() => {

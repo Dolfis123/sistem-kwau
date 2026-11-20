@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Download, Search, CalendarDays, Users, MessageCircle, Globe2 } from 'lucide-react';
 import useFetch from '../../hooks/useFetch';
 import { reservasiApi } from '../../services/api';
 import Loader from '../../components/common/Loader';
@@ -15,7 +16,7 @@ function LencanaBahasa({ bahasa, negara }) {
   if (bahasa !== 'en') return null;
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-bold text-sky-800" title="Turis memesan dalam bahasa Inggris">
-      🇬🇧 EN{negara ? ` · ${negara}` : ''}
+      <Globe2 size={11} aria-hidden="true" /> EN{negara ? ` · ${negara}` : ''}
     </span>
   );
 }
@@ -41,7 +42,7 @@ function BalasanWA({ r }) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="label !mb-0">Balas turis via WhatsApp</p>
         <div className="flex gap-1">
-          {[['en', '🇬🇧 English'], ['id', 'Indonesia']].map(([v, l]) => (
+          {[['en', 'English'], ['id', 'Indonesia']].map(([v, l]) => (
             <button key={v} type="button" onClick={() => setBahasa(v)}
               className={`rounded-full px-3 py-1 text-[11px] font-bold transition ${bahasa === v ? 'bg-hutan-900 text-kabut' : 'bg-white text-hutan-900 ring-1 ring-hutan-900/15'}`}>
               {l}
@@ -111,38 +112,69 @@ export default function ManajemenReservasi() {
     } catch { toast('Gagal mengunduh laporan.', 'error'); }
   };
 
-  const kelasFilter = (aktif) => `rounded-full px-4 py-2 text-xs font-bold transition ${aktif ? 'bg-hutan-900 text-kabut' : 'bg-white text-hutan-900 shadow-sm hover:bg-hutan-100'}`;
+  const kelasFilter = (aktif) => `admin-tab ${aktif ? 'admin-tab-aktif' : 'admin-tab-pasif'}`;
+  const statusLabel = (s) => STATUS_RESERVASI[s] || { label: s, cls: 'bg-hutan-100 text-hutan-800' };
 
   return (
     <div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-semibold text-hutan-950">Manajemen Reservasi</h1>
-          <p className="mt-1 text-sm text-tinta/55">Balas turis lewat template WhatsApp, verifikasi pembayaran manual, lalu perbarui status di sini.</p>
+          <h1 className="admin-judul">Manajemen Reservasi</h1>
+          <p className="admin-sub">Balas turis lewat template WhatsApp, verifikasi pembayaran manual, lalu perbarui status di sini.</p>
         </div>
-        <button onClick={unduhExcel} className="btn-garis !px-5 !py-2.5 !text-xs">⬇ Export Excel</button>
+        <button onClick={unduhExcel} className="btn-garis !px-5 !py-2.5 !text-xs"><Download size={15} aria-hidden="true" /> Export Excel</button>
       </div>
 
-      <div className="mt-5 flex flex-wrap items-center gap-3">
-        <div className="flex flex-wrap gap-1.5">
-          {[['', 'Semua'], ...Object.entries(STATUS_RESERVASI).map(([v, s]) => [v, s.label])].map(([v, label]) => (
+      <div className="mt-6 space-y-3">
+        <div className="admin-tabs">
+          {[['', 'Semua status'], ...Object.entries(STATUS_RESERVASI).map(([v, s]) => [v, s.label])].map(([v, label]) => (
             <button key={v} onClick={() => { setStatus(v); setPage(1); }} className={kelasFilter(status === v)}>{label}</button>
           ))}
-          <span className="mx-1 w-px self-stretch bg-hutan-900/10" />
-          {[['', 'Semua bahasa'], ['en', '🇬🇧 Turis berbahasa Inggris'], ['id', 'Bahasa Indonesia']].map(([v, label]) => (
-            <button key={`b-${v}`} onClick={() => { setBahasa(v); setPage(1); }} className={kelasFilter(bahasa === v)}>{label}</button>
-          ))}
         </div>
-        <form className="ml-auto flex gap-2" onSubmit={(e) => { e.preventDefault(); setCari(q); setPage(1); }}>
-          <input className="input !w-48 !py-2" placeholder="Cari nama turis..." value={q} onChange={(e) => setQ(e.target.value)} />
-          <button className="btn-hutan !px-4 !py-2 !text-xs">Cari</button>
-        </form>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="admin-tabs flex-1">
+            {[['', 'Semua bahasa'], ['en', 'Turis berbahasa Inggris'], ['id', 'Bahasa Indonesia']].map(([v, label]) => (
+              <button key={`b-${v}`} onClick={() => { setBahasa(v); setPage(1); }} className={kelasFilter(bahasa === v)}>{label}</button>
+            ))}
+          </div>
+          <form className="flex w-full gap-2 sm:w-auto" onSubmit={(e) => { e.preventDefault(); setCari(q); setPage(1); }}>
+            <div className="relative flex-1 sm:w-56 sm:flex-none">
+              <Search size={15} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-tinta/35" aria-hidden="true" />
+              <input className="input !py-2.5 !pl-10" placeholder="Cari nama turis..." value={q} onChange={(e) => setQ(e.target.value)} />
+            </div>
+            <button className="btn-hutan !px-4 !py-2 !text-xs">Cari</button>
+          </form>
+        </div>
       </div>
 
       {loading ? <Loader /> : data?.length ? (
         <>
-          <div className="mt-5 overflow-x-auto rounded-2xl bg-white shadow-sm">
-            <table className="w-full min-w-[760px] text-sm">
+          {/* HP, tablet, laptop kecil: daftar kartu */}
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:hidden">
+            {data.map((r) => (
+              <article key={r.id} className="admin-panel flex flex-col p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="flex flex-wrap items-center gap-1.5 font-bold text-hutan-950">{r.nama_turis} <LencanaBahasa bahasa={r.bahasa} negara={r.negara} /></p>
+                    <p className="mt-0.5 text-xs text-tinta/50">#{r.id} · +{nomorWaMe(r.no_wa)}</p>
+                  </div>
+                  <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold ${statusLabel(r.status).cls}`}>{statusLabel(r.status).label}</span>
+                </div>
+                <p className="mt-3 text-sm font-semibold text-tinta/80">{r.paket?.nama || '-'}</p>
+                <p className="mb-4 mt-1 flex flex-wrap gap-x-4 text-xs text-tinta/55">
+                  <span className="inline-flex items-center gap-1"><CalendarDays size={13} aria-hidden="true" /> {formatTanggal(r.tanggal_kunjungan)}</span>
+                  <span className="inline-flex items-center gap-1"><Users size={13} aria-hidden="true" /> {r.jumlah_peserta} orang</span>
+                </p>
+                <button onClick={() => setDetail(r)} className="btn-hutan mt-auto w-full !py-2.5 !text-xs">
+                  <MessageCircle size={15} aria-hidden="true" /> Detail & Balas via WhatsApp
+                </button>
+              </article>
+            ))}
+          </div>
+
+          {/* Desktop: tabel */}
+          <div className="admin-panel mt-5 hidden overflow-x-auto xl:block">
+            <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-hutan-900/10 text-left text-[11px] font-bold uppercase tracking-wider text-tinta/50">
                   <th className="px-4 py-3">Turis</th>
@@ -161,15 +193,17 @@ export default function ManajemenReservasi() {
                       <p className="text-xs text-tinta/50">+{nomorWaMe(r.no_wa)}</p>
                     </td>
                     <td className="px-4 py-3 text-tinta/75">{r.paket?.nama || '-'}</td>
-                    <td className="px-4 py-3 text-tinta/75">{formatTanggal(r.tanggal_kunjungan)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-tinta/75">{formatTanggal(r.tanggal_kunjungan)}</td>
                     <td className="px-4 py-3 font-semibold text-tinta/75">{r.jumlah_peserta}</td>
                     <td className="px-4 py-3">
-                      <span className={`rounded-full px-3 py-1 text-[11px] font-bold ${STATUS_RESERVASI[r.status].cls}`}>
-                        {STATUS_RESERVASI[r.status].label}
+                      <span className={`whitespace-nowrap rounded-full px-3 py-1 text-[11px] font-bold ${statusLabel(r.status).cls}`}>
+                        {statusLabel(r.status).label}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button onClick={() => setDetail(r)} className="rounded-full bg-hutan-100 px-4 py-1.5 text-xs font-bold text-hutan-800 hover:bg-hutan-200">Detail & Balas</button>
+                      <button onClick={() => setDetail(r)} className="admin-aksi whitespace-nowrap bg-hutan-900 text-kabut hover:bg-hutan-800">
+                        <MessageCircle size={14} aria-hidden="true" /> Detail & Balas
+                      </button>
                     </td>
                   </tr>
                 ))}

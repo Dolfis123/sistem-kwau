@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Check, Ban, Trash2 } from 'lucide-react';
 import useFetch from '../../hooks/useFetch';
 import { galeriApi } from '../../services/api';
 import Loader from '../../components/common/Loader';
@@ -49,13 +50,13 @@ export default function ModerasiGaleri() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-semibold text-hutan-950">Moderasi Jejak Wisatawan</h1>
-      <p className="mt-1 text-sm text-tinta/55">Tinjau kiriman pengunjung sebelum ditayangkan di halaman publik.</p>
+      <h1 className="admin-judul">Moderasi Jejak Wisatawan</h1>
+      <p className="admin-sub">Tinjau kiriman pengunjung sebelum ditayangkan di halaman publik.</p>
 
-      <div className="mt-5 flex gap-1.5">
+      <div className="admin-tabs mt-5">
         {TAB.map((t) => (
           <button key={t.value} onClick={() => { setTab(t.value); setPage(1); }}
-            className={`rounded-full px-5 py-2 text-xs font-bold transition ${tab === t.value ? 'bg-hutan-900 text-kabut' : 'bg-white text-hutan-900 shadow-sm hover:bg-hutan-100'}`}>
+            className={`admin-tab ${tab === t.value ? 'admin-tab-aktif' : 'admin-tab-pasif'}`}>
             {t.label}
           </button>
         ))}
@@ -65,7 +66,7 @@ export default function ModerasiGaleri() {
         <>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {data.map((g) => (
-              <button key={g.id} onClick={() => bukaDetail(g.id)} className="kartu group text-left transition hover:-translate-y-0.5">
+              <button key={g.id} onClick={() => bukaDetail(g.id)} className="admin-panel group overflow-hidden text-left transition hover:-translate-y-0.5 hover:shadow-kartu">
                 <div className="aspect-[16/10]">
                   <ImgFallback src={g.foto?.[0]?.url_foto} alt="" className="h-full w-full object-cover" />
                 </div>
@@ -83,7 +84,7 @@ export default function ModerasiGaleri() {
           <Pagination meta={meta} page={page} onPage={setPage} />
         </>
       ) : (
-        <div className="mt-5"><EmptyState judul={tab === 'pending' ? 'Antrean kosong — semua sudah ditinjau 🎉' : 'Belum ada konten'} /></div>
+        <div className="mt-5"><EmptyState judul={tab === 'pending' ? 'Antrean kosong — semua sudah ditinjau' : 'Belum ada konten'} /></div>
       )}
 
       <Modal buka={!!detail} onTutup={() => setDetail(null)} judul={`Kiriman dari ${detail?.nama_pengunjung}`} lebar="max-w-2xl">
@@ -119,11 +120,11 @@ export default function ModerasiGaleri() {
             </div>
             <div className="mt-4 grid grid-cols-3 gap-2">
               <button disabled={proses || detail.status === 'approved'} onClick={() => aksi('approve')}
-                className="btn !rounded-xl bg-emerald-600 !px-3 !py-2.5 !text-xs text-white hover:bg-emerald-700">✓ Approve</button>
+                className="btn !rounded-xl bg-emerald-600 !px-3 !py-2.5 !text-xs text-white hover:bg-emerald-700"><Check size={15} aria-hidden="true" /> Approve</button>
               <button disabled={proses || detail.status === 'rejected'} onClick={() => aksi('reject')}
-                className="btn !rounded-xl bg-amber-500 !px-3 !py-2.5 !text-xs text-white hover:bg-amber-600">⊘ Reject</button>
+                className="btn !rounded-xl bg-amber-500 !px-3 !py-2.5 !text-xs text-white hover:bg-amber-600"><Ban size={15} aria-hidden="true" /> Reject</button>
               <button disabled={proses} onClick={() => aksi('delete')}
-                className="btn !rounded-xl bg-rose-600 !px-3 !py-2.5 !text-xs text-white hover:bg-rose-700">🗑 Hapus</button>
+                className="btn !rounded-xl bg-rose-600 !px-3 !py-2.5 !text-xs text-white hover:bg-rose-700"><Trash2 size={15} aria-hidden="true" /> Hapus</button>
             </div>
             <p className="mt-2 text-[11px] text-tinta/45">Approve = tayang di publik · Reject = diarsipkan (bisa ditinjau ulang) · Hapus = permanen.</p>
           </div>

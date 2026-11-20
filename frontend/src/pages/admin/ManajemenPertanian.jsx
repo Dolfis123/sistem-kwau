@@ -12,8 +12,8 @@ export default function ManajemenPertanian() {
 
   return (
     <div>
-      <h1 className="mb-1 font-display text-2xl font-semibold text-hutan-950">Manajemen Hasil Pertanian</h1>
-      <p className="mb-6 text-sm text-tinta/55">Potensi kebun kampung yang tampil di halaman Hasil Pertanian — lengkap dengan kalender panen otomatis.</p>
+      <h1 className="admin-judul mb-1">Manajemen Hasil Pertanian</h1>
+      <p className="admin-sub mb-6">Potensi kebun kampung yang tampil di halaman Hasil Pertanian — lengkap dengan kalender panen otomatis.</p>
       <AdminCrud judul="Hasil Pertanian" api={pertanianApi} namaField="nama"
         data={data} loading={loading} refetch={refetch}
         meta={meta} page={page} onPage={setPage}

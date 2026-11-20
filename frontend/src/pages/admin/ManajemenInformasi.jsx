@@ -20,17 +20,17 @@ export default function ManajemenInformasi() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-semibold text-hutan-950">Informasi Kampung</h1>
-      <p className="mt-1 text-sm text-tinta/55">Blog berita/kegiatan kampung dan profil kampung (sejarah, marga, struktur pemerintahan).</p>
+      <h1 className="admin-judul">Informasi Kampung</h1>
+      <p className="admin-sub">Blog berita/kegiatan kampung dan profil kampung (sejarah, marga, struktur pemerintahan).</p>
 
-      <div className="mb-6 mt-5 flex flex-wrap gap-1.5">
+      <div className="admin-tabs mb-6 mt-5">
         <button onClick={() => setTab('berita')}
-          className={`rounded-full px-4 py-2 text-xs font-bold transition ${tab === 'berita' ? 'bg-hutan-900 text-kabut' : 'bg-white text-hutan-900 shadow-sm hover:bg-hutan-100'}`}>
+          className={`admin-tab ${tab === 'berita' ? 'admin-tab-aktif' : 'admin-tab-pasif'}`}>
           Berita dan Kegiatan
         </button>
         {bolehProfil && (
           <button onClick={() => setTab('profil')}
-            className={`rounded-full px-4 py-2 text-xs font-bold transition ${tab === 'profil' ? 'bg-hutan-900 text-kabut' : 'bg-white text-hutan-900 shadow-sm hover:bg-hutan-100'}`}>
+            className={`admin-tab ${tab === 'profil' ? 'admin-tab-aktif' : 'admin-tab-pasif'}`}>
             Profil Kampung
           </button>
         )}
