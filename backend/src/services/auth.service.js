@@ -1,32 +1,10 @@
 const bcrypt = require('bcryptjs');
 const { Admin } = require('../models');
 const generateToken = require('../utils/generateToken');
-exports.createAdmin = async (data) => {
-  // Cek apakah username atau email sudah digunakan
-  const existingAdmin = await Admin.findOne({
-    where: { username: data.username }
-  });
-  if (existingAdmin) {
-    const err = new Error('Username sudah digunakan.');
-    err.status = 400;
-    throw err;
-  }
 
-  // Hash password
-  const password_hash = await bcrypt.hash(data.password, 10);
+// Catatan: pembuatan akun admin ada di admin.controller.js (superadmin TIDAK
+// bisa dibuat dari dashboard — hanya lewat seed / init-superadmin di server).
 
-  // Buat admin baru
-  const newAdmin = await Admin.create({
-    nama: data.nama,
-    username: data.username,
-    email: data.email,
-    password_hash: password_hash,
-    role: data.role || 'superadmin', // Ambil role dari request, default ke superadmin jika perlu
-    is_active: true
-  });
-
-  return newAdmin;
-};
 exports.login = async (username, password) => {
   const admin = await Admin.findOne({ where: { username } });
   if (!admin || !admin.is_active) {

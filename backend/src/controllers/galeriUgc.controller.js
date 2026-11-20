@@ -4,6 +4,7 @@ const { GaleriUgc, GaleriUgcFoto, ModerasiLog, PaketWisata, Admin } = require('.
 const { ok, fail } = require('../utils/apiResponse');
 const { getPagination, buildMeta } = require('../utils/pagination');
 const { saveImage } = require('../utils/imageProcessor');
+const { pesan } = require('../utils/bahasa');
 
 // PUBLIK: galeri approved saja; kolom "kontak" TIDAK pernah dikirim ke publik
 exports.listPublik = async (req, res, next) => {
@@ -17,7 +18,7 @@ exports.listPublik = async (req, res, next) => {
       attributes: ['id', 'nama_pengunjung', 'asal', 'ulasan', 'rating', 'created_at'],
       include: [
         { model: GaleriUgcFoto, as: 'foto', attributes: ['url_foto'] },
-        { model: PaketWisata, as: 'paket', attributes: ['id', 'nama'] },
+        { model: PaketWisata, as: 'paket', attributes: ['id', 'nama', 'nama_en'] },
       ],
       order: [['created_at', 'DESC']],
       distinct: true,
@@ -44,8 +45,9 @@ exports.create = async (req, res, next) => {
         await GaleriUgcFoto.create({ galeri_ugc_id: konten.id, url_foto: url });
       }
     }
-    return ok(res, { id: konten.id },
-      'Terima kasih! Kiriman Anda akan tayang setelah ditinjau oleh admin.', 201);
+    return ok(res, { id: konten.id }, pesan(req,
+      'Terima kasih! Kiriman Anda akan tayang setelah ditinjau oleh admin.',
+      'Thank you! Your story will appear once it has been reviewed.'), 201);
   } catch (err) { next(err); }
 };
 

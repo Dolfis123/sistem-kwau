@@ -28,6 +28,18 @@ Server berjalan di `http://localhost:5000`. Semua tabel dibuat **otomatis** saat
 
 Login admin pertama memakai `SEED_ADMIN_USERNAME` dan `SEED_ADMIN_PASSWORD` dari `.env` (segera ganti password setelah login pertama lewat endpoint ganti-password).
 
+## 1b. Pembaruan V3 — Dwibahasa (Indonesia / English)
+
+Untuk server yang **sudah berjalan**, jalankan sekali setelah menarik kode terbaru:
+
+```bash
+npm run backup        # selalu backup dulu
+npm run update-db-v3  # menambah kolom versi Inggris (*_en), bahasa & negara reservasi
+```
+
+Setelah itu, isi versi Bahasa Inggris lewat Dashboard Admin (bagian bertanda 🇬🇧 di setiap form).
+Konten yang belum diterjemahkan tetap tampil dalam Bahasa Indonesia saat pengunjung memilih English.
+
 ## 2. Kenapa Tanpa Migrations?
 
 Skema tabel didefinisikan langsung di `src/models/`. Saat server start, `sequelize.sync()` membuat tabel yang belum ada. Ini lebih sederhana untuk tim kecil.

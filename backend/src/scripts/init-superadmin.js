@@ -6,8 +6,20 @@ const bcrypt = require('bcryptjs');
 const sequelize = require('../config/database');
 const { Admin } = require('../models');
 
+// Data akun diambil dari .env — JANGAN menulis password langsung di kode,
+// karena repo ini publik di GitHub.
+const USERNAME = process.env.SEED_ADMIN_USERNAME || 'superadmin';
+const NAMA = process.env.SEED_ADMIN_NAMA || 'Superadmin Kwau';
+const EMAIL = process.env.SEED_ADMIN_EMAIL || 'admin@kwau.id';
+const PASSWORD = process.env.SEED_ADMIN_PASSWORD;
+
 async function createFirstSuperadmin() {
   try {
+    if (!PASSWORD || PASSWORD.length < 12 || PASSWORD === 'GantiPassword123!') {
+      console.error('❌ Isi SEED_ADMIN_PASSWORD di .env dengan password kuat (minimal 12 karakter, bukan contoh bawaan).');
+      process.exit(1);
+    }
+
     // Pastikan koneksi DB berhasil
     await sequelize.authenticate();
 
@@ -17,21 +29,18 @@ async function createFirstSuperadmin() {
       process.exit(0);
     }
 
-    const passwordLengkap = 'SuperRahasia123!';
-    const password_hash = await bcrypt.hash(passwordLengkap, 10);
-
     await Admin.create({
-      nama: 'Super Admin Utama',
-      username: 'admin',
-      email: 'admin@admin.com',
-      password_hash: password_hash,
+      nama: NAMA,
+      username: USERNAME,
+      email: EMAIL,
+      password_hash: await bcrypt.hash(PASSWORD, 10),
       role: 'superadmin',
-      is_active: true
+      is_active: true,
     });
 
     console.log('✅ Superadmin pertama berhasil dibuat!');
-    console.log(`Username: superadmin`);
-    console.log(`Password: ${passwordLengkap}`);
+    console.log(`Username: ${USERNAME}`);
+    console.log('Password: (sesuai SEED_ADMIN_PASSWORD di .env)');
     process.exit(0);
   } catch (error) {
     console.error('❌ Gagal membuat superadmin:', error);

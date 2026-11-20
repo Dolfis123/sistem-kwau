@@ -7,7 +7,7 @@ exports.listPublik = async (req, res, next) => {
   try {
     return ok(res, await TokohPemandu.findAll({
       where: { status_aktif: true },
-      attributes: ['id', 'nama', 'jabatan', 'spesialisasi', 'bio', 'no_wa', 'foto'],
+      attributes: ['id', 'nama', 'jabatan', 'jabatan_en', 'spesialisasi', 'spesialisasi_en', 'bio', 'bio_en', 'bahasa', 'no_wa', 'foto'],
       order: [['created_at', 'ASC']],
     }));
   } catch (err) { next(err); }

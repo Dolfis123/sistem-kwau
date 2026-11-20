@@ -25,10 +25,14 @@ const batalkanPendingKedaluwarsa = async () => {
   }
 };
 
+// Tanggal hari ini (YYYY-MM-DD) menurut WIT. Dibandingkan sebagai tanggal saja,
+// supaya slot HARI INI tidak ikut ditutup saat cron berjalan jam 01.00.
+const hariIniWIT = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jayapura' }).format(new Date());
+
 const tutupTanggalLewat = async () => {
   const [jumlah] = await PaketKetersediaan.update(
     { status: 'ditutup' },
-    { where: { tanggal: { [Op.lt]: new Date() }, status: { [Op.ne]: 'ditutup' } } }
+    { where: { tanggal: { [Op.lt]: hariIniWIT() }, status: { [Op.ne]: 'ditutup' } } }
   );
   if (jumlah > 0) logger.info(`[CRON] ${jumlah} tanggal ketersediaan yang sudah lewat ditutup.`);
 };

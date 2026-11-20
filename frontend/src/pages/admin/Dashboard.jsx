@@ -20,7 +20,7 @@ export default function Dashboard() {
       <h1 className="font-display text-2xl font-semibold text-hutan-950">Selamat datang, {admin?.nama?.split(' ')[0]} 👋</h1>
       <p className="mt-1 text-sm text-tinta/55">Ringkasan aktivitas Portal Wisata Kwau.</p>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-3">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="kartu p-6">
           <p className="eyebrow">Reservasi Pending</p>
           <p className="mt-2 font-display text-4xl font-semibold text-amber-600">{data?.reservasi_bulan_ini?.pending ?? 0}</p>
@@ -36,7 +36,42 @@ export default function Dashboard() {
           <p className="mt-2 font-display text-4xl font-semibold text-hutan-800">{data?.antrean_moderasi ?? 0}</p>
           <p className="mt-1 text-xs font-bold text-emas-dark">konten menunggu tinjauan →</p>
         </Link>
+        <Link to="/admin/reservasi" className="kartu p-6 transition hover:-translate-y-0.5">
+          <p className="eyebrow">🇬🇧 Turis Asing</p>
+          <p className="mt-2 font-display text-4xl font-semibold text-sky-700">{data?.reservasi_bulan_ini?.bahasa_inggris ?? 0}</p>
+          <p className="mt-1 text-xs text-tinta/50">reservasi berbahasa Inggris bulan ini</p>
+        </Link>
       </div>
+
+      {/* Kelengkapan terjemahan: membantu admin tahu konten mana yang belum ada versi Inggrisnya */}
+      {data?.terjemahan?.length > 0 && (
+        <div className="kartu mt-6 p-6">
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <h2 className="font-display text-lg font-semibold text-hutan-950">Kelengkapan Versi Bahasa Inggris</h2>
+              <p className="mt-0.5 text-xs text-tinta/50">Sebagian besar pengunjung adalah turis mancanegara — konten berbahasa Inggris membantu mereka memesan.</p>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {data.terjemahan.map((k) => {
+              const sudah = k.total - k.belum;
+              const persen = k.total ? Math.round((sudah / k.total) * 100) : 100;
+              return (
+                <Link key={k.nama} to={k.menu} className="rounded-2xl bg-kabut p-4 ring-1 ring-hutan-900/[.06] transition hover:ring-hutan-900/20">
+                  <div className="flex items-baseline justify-between">
+                    <p className="text-sm font-bold text-hutan-950">{k.nama}</p>
+                    <p className={`text-sm font-bold ${persen === 100 ? 'text-emerald-600' : 'text-amber-600'}`}>{persen}%</p>
+                  </div>
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-hutan-900/10">
+                    <div className={`h-full rounded-full ${persen === 100 ? 'bg-emerald-500' : 'bg-emas'}`} style={{ width: `${persen}%` }} />
+                  </div>
+                  <p className="mt-2 text-[11px] text-tinta/50">{k.belum > 0 ? `${k.belum} dari ${k.total} belum diterjemahkan` : 'Semua sudah diterjemahkan ✓'}</p>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <div className="kartu p-6">

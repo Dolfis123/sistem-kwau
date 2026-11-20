@@ -1,7 +1,13 @@
 // PERBAIKAN #2a: rate limiting form publik & login (anti spam / brute force)
 const rateLimit = require('express-rate-limit');
 
-const pesan = { success: false, message: 'Terlalu banyak permintaan. Silakan coba lagi beberapa menit lagi.' };
+const { pesan: teks } = require('../utils/bahasa');
+
+const pesan = (req) => ({
+  success: false,
+  message: teks(req, 'Terlalu banyak permintaan. Silakan coba lagi beberapa menit lagi.',
+    'Too many requests. Please try again in a few minutes.'),
+});
 
 // Form publik: reservasi, UGC, kontak — maks 10 kiriman / 15 menit / IP
 exports.publicFormLimiter = rateLimit({

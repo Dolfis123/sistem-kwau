@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
+import TombolWA from '../components/layout/TombolWA';
 
 export default function PublicLayout() {
   const { pathname, hash } = useLocation();
@@ -21,6 +22,7 @@ export default function PublicLayout() {
       <Navbar />
       <main className="flex-1"><Outlet /></main>
       <Footer />
+      <TombolWA />
     </div>
   );
 }

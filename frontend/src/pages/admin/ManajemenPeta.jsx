@@ -4,6 +4,7 @@ import { petaApi, tokohApi } from '../../services/api';
 import AdminCrud from '../../components/common/AdminCrud';
 import { useToast } from '../../components/common/Toast';
 import { KATEGORI_TITIK } from '../../constants';
+import { BAGIAN_INGGRIS } from '../../constants/bahasaInggris';
 
 export default function ManajemenPeta() {
   const toast = useToast();
@@ -50,6 +51,9 @@ export default function ManajemenPeta() {
             { name: 'longitude', label: 'Longitude', type: 'number', step: 'any', setengah: true },
             { name: 'deskripsi', label: 'Deskripsi', type: 'textarea', opsional: true, keterangan: 'Untuk pos satwa: jenis satwa & waktu terbaik berkunjung.' },
             { name: 'foto', label: 'Foto', type: 'file', opsional: true },
+            BAGIAN_INGGRIS,
+            { name: 'nama_en', label: 'Nama Titik (English)', opsional: true },
+            { name: 'deskripsi_en', label: 'Deskripsi (English)', type: 'textarea', opsional: true },
           ]}
         />
       ) : (
@@ -71,8 +75,13 @@ export default function ManajemenPeta() {
             { name: 'spesialisasi', label: 'Spesialisasi', opsional: true },
             { name: 'bio', label: 'Biodata Singkat', type: 'textarea', rows: 3, opsional: true, keterangan: 'Tampil di halaman Tentang Kwau bagian "Orang-orang di balik Kwau".' },
             { name: 'no_wa', label: 'Nomor WhatsApp', opsional: true },
+            { name: 'bahasa', label: 'Bahasa yang Dikuasai', opsional: true, keterangan: 'Penting bagi turis asing. Contoh: Indonesia, Arfak, English (dasar)' },
             { name: 'peta_titik_id', label: 'Titik Peta Terkait', type: 'select', opsional: true, options: (titik.data || []).map((t) => ({ value: t.id, label: t.nama })) },
             { name: 'foto', label: 'Foto Profil', type: 'file', opsional: true },
+            BAGIAN_INGGRIS,
+            { name: 'jabatan_en', label: 'Jabatan (English)', opsional: true, keterangan: 'Contoh: Bowerbird Guide' },
+            { name: 'spesialisasi_en', label: 'Spesialisasi (English)', opsional: true },
+            { name: 'bio_en', label: 'Biodata Singkat (English)', type: 'textarea', rows: 3, opsional: true },
           ]}
           aksiEkstra={(item, refetch) => (
             <button onClick={() => toggleTokoh(item, refetch)}

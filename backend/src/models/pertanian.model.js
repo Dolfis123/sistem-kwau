@@ -10,5 +10,9 @@ module.exports = sequelize.define('Pertanian', {
   bulan_panen: { type: DataTypes.STRING(150) },      // mis. "Juni – Agustus (panen raya)"
   frekuensi_panen: { type: DataTypes.STRING(100) },  // mis. "2x panen per tahun"
   harga_kisaran: { type: DataTypes.STRING(100) },    // mis. "Rp15.000–20.000 / kg"
+  nama_en: { type: DataTypes.STRING(100) },
+  deskripsi_en: { type: DataTypes.TEXT },
+  bulan_panen_en: { type: DataTypes.STRING(150) },
+  frekuensi_panen_en: { type: DataTypes.STRING(100) },
   foto: { type: DataTypes.STRING(255) },
 }, { tableName: 'pertanian' });

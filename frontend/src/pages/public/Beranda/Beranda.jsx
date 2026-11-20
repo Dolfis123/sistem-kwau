@@ -1,108 +1,145 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, CalendarDays, Users, MapPin, Quote } from 'lucide-react';
 import useFetch from '../../../hooks/useFetch';
-import { paketApi, galeriApi, satwaApi, homestayApi, galeriKampungApi, kontenApi, beritaApi } from '../../../services/api';
+import useKonten from '../../../hooks/useKonten';
+import { paketApi, galeriApi, satwaApi, homestayApi, galeriKampungApi, beritaApi } from '../../../services/api';
 import GarisKontur from '../../../components/common/GarisKontur';
 import SectionHeading from '../../../components/common/SectionHeading';
 import ImgFallback from '../../../components/common/ImgFallback';
 import StarRating from '../../../components/common/StarRating';
-import KartuPaket from '../PaketWisata/KartuPaket';
 import Modal from '../../../components/common/Modal';
-import { useState } from 'react';
+import Ikon from '../../../components/common/Ikon';
+import KartuPaket from '../PaketWisata/KartuPaket';
+import { useLang } from '../../../i18n/LanguageContext';
+import { formatTanggalPendek, hariIniWIT } from '../../../utils/format';
+
+// Kotak "Cek ketersediaan" di hero → langsung ke form reservasi paket yang dipilih
+function KotakPesan({ paket }) {
+  const { t, pick } = useLang();
+  const navigate = useNavigate();
+  const [pilih, setPilih] = useState({ id: '', tanggal: '', peserta: 2 });
+
+  const lanjut = (e) => {
+    e.preventDefault();
+    if (!pilih.id) return navigate('/paket-wisata');
+    const q = new URLSearchParams();
+    if (pilih.tanggal) q.set('tanggal', pilih.tanggal);
+    if (pilih.peserta) q.set('peserta', pilih.peserta);
+    navigate(`/paket-wisata/${pilih.id}?${q.toString()}#pesan`);
+  };
+
+  return (
+    <form onSubmit={lanjut} className="grid gap-3 rounded-3xl bg-white p-3 shadow-angkat sm:grid-cols-[1.4fr_1fr_.8fr_auto] sm:items-end sm:gap-0 sm:p-2.5">
+      <label className="block rounded-2xl px-4 py-2 sm:border-r sm:border-hutan-900/10">
+        <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-tinta/45"><MapPin size={12} aria-hidden="true" />{t('beranda.cari.paket')}</span>
+        <select value={pilih.id} onChange={(e) => setPilih({ ...pilih, id: e.target.value })}
+          className="mt-0.5 w-full bg-transparent text-sm font-semibold text-hutan-950 outline-none">
+          <option value="">{t('beranda.cari.pilihPaket')}</option>
+          {(paket || []).map((p) => <option key={p.id} value={p.id}>{pick(p, 'nama')}</option>)}
+        </select>
+      </label>
+      <label className="block rounded-2xl px-4 py-2 sm:border-r sm:border-hutan-900/10">
+        <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-tinta/45"><CalendarDays size={12} aria-hidden="true" />{t('beranda.cari.tanggal')}</span>
+        <input type="date" min={hariIniWIT()} value={pilih.tanggal} onChange={(e) => setPilih({ ...pilih, tanggal: e.target.value })}
+          className="mt-0.5 w-full bg-transparent text-sm font-semibold text-hutan-950 outline-none" />
+      </label>
+      <label className="block rounded-2xl px-4 py-2">
+        <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-tinta/45"><Users size={12} aria-hidden="true" />{t('beranda.cari.peserta')}</span>
+        <input type="number" min={1} max={100} value={pilih.peserta} onChange={(e) => setPilih({ ...pilih, peserta: e.target.value })}
+          className="mt-0.5 w-full bg-transparent text-sm font-semibold text-hutan-950 outline-none" />
+      </label>
+      <button type="submit" className="btn-emas !rounded-2xl !py-4">
+        {t('beranda.cari.tombol')} <ArrowRight size={16} aria-hidden="true" />
+      </button>
+    </form>
+  );
+}
 
 export default function Beranda() {
-  const { data: paket } = useFetch(() => paketApi.list({ limit: 3 }), []);
+  const { t, pick, lang, locale } = useLang();
+  const { data: paket } = useFetch(() => paketApi.list({ limit: 50 }), []);
   const { data: galeri } = useFetch(() => galeriApi.list({ limit: 6 }), []);
   const { data: satwa } = useFetch(() => satwaApi.list(), []);
   const { data: homestay } = useFetch(() => homestayApi.list(), []);
-  const { data: sekilas } = useFetch(() => kontenApi.getBySlug('sekilas-kwau').catch(() => ({ data: { data: null } })), []);
-  const { data: pesona } = useFetch(() => galeriKampungApi.list({ page: 1, limit: 12 }), []); // V5: beranda cukup 12 foto teratas
+  const { data: pesona } = useFetch(() => galeriKampungApi.list({ page: 1, limit: 12 }), []);
+  const { data: kabar } = useFetch(() => beritaApi.list({ limit: 3 }), []);
+  const sekilas = useKonten('sekilas-kwau');
   const [lightbox, setLightbox] = useState(null);
-  const { data: infoWisata } = useFetch(() => beritaApi.list({ kategori: 'Wisata', limit: 3 }), []);
 
   const testimoni = (galeri || []).filter((g) => g.rating >= 4).slice(0, 3);
+  const fotoHero = pesona?.[0]?.url_foto || paket?.[0]?.foto_cover;
+  const isiSekilas = lang === 'en'
+    ? (sekilas?.isi_en || t('beranda.sekilas.bawaan'))
+    : (sekilas?.isi || t('beranda.sekilas.bawaan'));
 
   return (
     <>
       {/* ===== HERO ===== */}
-      <section className="relative flex min-h-[92vh] items-center overflow-hidden bg-hutan-950">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_20%,rgba(201,134,44,.16),transparent_55%),radial-gradient(ellipse_at_15%_85%,rgba(47,107,76,.35),transparent_60%)]" />
-        <GarisKontur className="absolute inset-x-0 bottom-0 h-64 w-full text-emas" />
-        {/* Siluet burung */}
-        <svg className="absolute right-[38%] top-20 hidden w-36 text-emas/20 lg:block" viewBox="0 0 100 60" fill="currentColor" aria-hidden="true">
-          <path d="M8 42c14-20 26-28 44-30-6 8-7 14-3 20 12-4 24-2 43 6-16 3-28 4-38 2 2 6 0 11-6 15-3-7-8-11-15-12-9-1-17-1-25-1z" />
-        </svg>
+      <section className="relative isolate flex min-h-[100svh] flex-col justify-end overflow-hidden bg-hutan-950 pb-10 pt-32 text-kabut">
+        {fotoHero ? (
+          <ImgFallback src={fotoHero} alt="" className="absolute inset-0 -z-20 h-full w-full scale-105 object-cover" />
+        ) : null}
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(12,31,23,.55)_0%,rgba(12,31,23,.35)_40%,rgba(12,31,23,.92)_100%)]" />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_75%_15%,rgba(201,134,44,.22),transparent_50%)]" />
+        <GarisKontur className="absolute inset-x-0 bottom-0 -z-10 h-72 w-full text-emas/40" />
 
-        <div className="relative mx-auto grid w-full max-w-7xl items-center gap-12 px-4 pb-24 pt-32 sm:px-6 lg:grid-cols-[1.5fr_1fr]">
-          <div>
-            <p className="eyebrow !text-emas-light">Distrik Mokwam · Kabupaten Manokwari · Papua Barat</p>
-            <h1 className="mt-4 max-w-3xl text-4xl font-semibold leading-[1.08] text-kabut sm:text-6xl lg:text-6xl">
-             Hutan adalah 
- <span className="italic text-emas-light"> mesin pencetak</span> uang bagi masyarakat
+        <div className="wadah">
+          <div className="max-w-4xl animate-muncul">
+            <p className="eyebrow !text-emas-light">{t('beranda.lokasi')}</p>
+            <h1 className="teks-bayangan mt-6 text-[2.75rem] font-medium leading-[1.02] sm:text-6xl lg:text-[5.25rem]">
+              {t('beranda.judul1')} <em className="font-normal text-emas-light">{t('beranda.judulAksen')}</em> {t('beranda.judul2')}
             </h1>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-kabut/70 sm:text-lg">
-              Kampung Kwau di kaki Pegunungan Arfak adalah rumah bagi Burung Pintar (Vogelkop Bowerbird) dan Cenderawasih.
-              Menginap di homestay warga, berjalan bersama pemandu lokal, dan menjadi bagian dari konservasi.
-            </p>
+            <p className="mt-7 max-w-2xl text-base leading-relaxed text-kabut/80 sm:text-lg">{t('beranda.sub')}</p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Link to="/paket-wisata" className="btn-emas">Lihat Paket Wisata</Link>
-              <Link to="/peta" className="btn !border-2 !border-kabut/30 !text-kabut hover:!bg-kabut/10">Jelajahi Peta Kampung</Link>
+              <Link to="/paket-wisata" className="btn-emas">{t('beranda.ctaPaket')} <ArrowRight size={16} aria-hidden="true" /></Link>
+              <Link to="/peta" className="btn-terang">{t('beranda.ctaPeta')}</Link>
             </div>
           </div>
 
-          {/* V4: panel informasi terbaru khusus kategori Wisata */}
-          {infoWisata?.length > 0 && (
-            <aside className="rounded-3xl border border-kabut/12 bg-kabut/[.06] p-5 backdrop-blur-sm">
-              <div className="flex items-center justify-between gap-3">
-                <p className="eyebrow !text-emas-light">Info Wisata Terbaru</p>
-                <Link to="/informasi" className="text-[11px] font-bold text-kabut/60 hover:text-emas-light">Semua →</Link>
+          <div className="mt-14 animate-muncul [animation-delay:.15s]">
+            <p className="mb-3 text-xs font-bold uppercase tracking-lebar text-kabut/60">{t('beranda.cari.judul')}</p>
+            <KotakPesan paket={paket} />
+          </div>
+        </div>
+      </section>
+
+      {/* ===== KEUNGGULAN ===== */}
+      <section className="border-b border-hutan-900/[.07] bg-white">
+        <div className="wadah grid gap-8 py-12 sm:grid-cols-2 lg:grid-cols-4">
+          {t('beranda.unggulan').map(([ikon, judul, teks]) => (
+            <div key={judul} className="flex gap-4">
+              <span className="ikon-bulat"><Ikon nama={ikon} size={22} /></span>
+              <div>
+                <p className="font-display text-lg font-medium leading-snug text-hutan-950">{judul}</p>
+                <p className="mt-1 text-sm leading-relaxed text-tinta/60">{teks}</p>
               </div>
-              <div className="mt-3 space-y-2.5">
-                {infoWisata.map((b) => (
-                  <Link key={b.id} to={`/informasi/${b.id}`}
-                    className="group flex items-center gap-3.5 rounded-2xl bg-kabut/[.07] p-3 transition hover:bg-kabut/15">
-                    <ImgFallback src={b.foto_sampul} alt="" className="h-14 w-16 shrink-0 rounded-xl object-cover" />
-                    <div className="min-w-0">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-emas-light/80">
-                        {new Date(b.tanggal_terbit).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      </p>
-                      <p className="line-clamp-2 text-[13px] font-bold leading-snug text-kabut group-hover:text-emas-light">{b.judul}</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </aside>
-          )}
+            </div>
+          ))}
         </div>
       </section>
 
       {/* ===== SEKILAS KWAU + STATISTIK ===== */}
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
-        <div className="grid items-start gap-12 lg:grid-cols-2">
+      <section className="wadah bagian">
+        <div className="grid items-center gap-14 lg:grid-cols-[1.1fr_1fr]">
           <div>
-            <SectionHeading
-              eyebrow="Sekilas Kwau"
-              judul="Kampung kecil yang menjaga hutan besar"
-            />
-            <p className="mt-5 whitespace-pre-line leading-relaxed text-tinta/75">
-              {sekilas?.isi || 'Kampung Kwau terletak sekitar satu setengah jam perjalanan darat dari Manokwari, di lereng Pegunungan Arfak. Kampung ini dikenal para peneliti dan fotografer dunia sebagai salah satu tempat terbaik mengamati Burung Pintar dan Cenderawasih di habitat aslinya.'}
-            </p>
-            <div className="mt-7 flex flex-wrap items-center gap-4">
-              <Link to="/tentang" className="btn-garis">Kenali Kwau Lebih Dekat</Link>
-              <Link to="/tentang#peraturan-kampung" className="text-sm font-bold text-hutan-700 underline decoration-emas decoration-2 underline-offset-4 hover:text-emas-dark">
-                Baca Peraturan Kampung →
-              </Link>
+            <SectionHeading eyebrow={t('beranda.sekilas.eyebrow')} judul={t('beranda.sekilas.judul')} />
+            <p className="mt-6 whitespace-pre-line text-[17px] leading-relaxed text-tinta/75">{isiSekilas}</p>
+            <div className="mt-8 flex flex-wrap items-center gap-6">
+              <Link to="/tentang" className="btn-hutan">{t('beranda.sekilas.ctaTentang')}</Link>
+              <Link to="/tentang#peraturan-kampung" className="tautan">{t('beranda.sekilas.ctaPeraturan')} →</Link>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             {[
-              [satwa?.length || '—', 'Spesies endemik terdata'],
-              [homestay?.length || '—', 'Homestay milik warga'],
-              ['±1,5 jam', 'Dari Kota Manokwari'],
-              ['100%', 'Dikelola masyarakat'],
-            ].map(([angka, label]) => (
-              <div key={label} className="kartu p-6">
-                <p className="font-display text-4xl font-semibold text-hutan-800">{angka}</p>
-                <p className="mt-1.5 text-sm font-medium text-tinta/60">{label}</p>
+              [satwa?.length || '—', 0],
+              [homestay?.length || '—', 1],
+              [t('beranda.sekilas.jarak'), 2],
+              ['100%', 3],
+            ].map(([angka, i]) => (
+              <div key={i} className={`rounded-3xl p-7 ${i === 0 ? 'bg-hutan-900 text-kabut' : i === 3 ? 'bg-emas/15' : 'bg-white ring-1 ring-hutan-900/[.07]'}`}>
+                <p className={`font-display text-4xl font-medium sm:text-5xl ${i === 0 ? 'text-emas-light' : 'text-hutan-900'}`}>{angka}</p>
+                <p className={`mt-2 text-sm font-medium ${i === 0 ? 'text-kabut/70' : 'text-tinta/60'}`}>{t('beranda.sekilas.stat')[i]}</p>
               </div>
             ))}
           </div>
@@ -110,89 +147,133 @@ export default function Beranda() {
       </section>
 
       {/* ===== PAKET UNGGULAN ===== */}
-      <section className="relative overflow-hidden bg-hutan-950 py-20">
-        <GarisKontur className="absolute inset-x-0 top-0 h-40 w-full text-kabut/40" />
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
+      <section className="relative isolate overflow-hidden bg-hutan-950 py-20 lg:py-28">
+        <GarisKontur className="absolute inset-x-0 top-0 -z-10 h-40 w-full text-kabut/20" />
+        <div className="wadah">
           <div className="flex flex-wrap items-end justify-between gap-6">
-            <SectionHeading gelap eyebrow="Paket Unggulan" judul="Pilih cara Anda mengenal Arfak" />
-            <Link to="/paket-wisata" className="btn-emas">Semua Paket →</Link>
+            <SectionHeading gelap eyebrow={t('beranda.paket.eyebrow')} judul={t('beranda.paket.judul')} teks={t('beranda.paket.teks')} />
+            <Link to="/paket-wisata" className="btn-terang">{t('beranda.paket.semua')} <ArrowRight size={16} aria-hidden="true" /></Link>
           </div>
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {(paket || []).map((p) => <KartuPaket key={p.id} paket={p} />)}
-            {(!paket || paket.length === 0) && (
-              <p className="text-kabut/60">Paket wisata akan segera ditampilkan di sini.</p>
-            )}
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {(paket || []).slice(0, 3).map((p) => <KartuPaket key={p.id} paket={p} gelap />)}
+            {(!paket || paket.length === 0) && <p className="text-kabut/60">{t('beranda.paket.kosong')}</p>}
           </div>
         </div>
       </section>
 
-      {/* ===== PESONA KWAU (V2: galeri keindahan kampung, dikelola admin) ===== */}
-      {pesona?.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
-          <SectionHeading eyebrow="Pesona Kwau" judul="Keindahan yang menunggu Anda"
-            teks="Geser untuk melihat lebih banyak — semua foto diambil di dalam dan sekitar kampung." />
-          <div className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 [-webkit-overflow-scrolling:touch]">
-            {pesona.map((f) => (
-              <button key={f.id} onClick={() => setLightbox(f)}
-                className="group relative w-64 shrink-0 snap-start overflow-hidden rounded-2xl sm:w-72" aria-label={`Perbesar foto ${f.judul}`}>
-                <ImgFallback src={f.url_foto} alt={f.judul} className="aspect-[3/4] w-full object-cover transition duration-500 group-hover:scale-105" />
-                <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-hutan-950/85 to-transparent px-4 pb-3.5 pt-10 text-left text-sm font-bold text-kabut">
-                  {f.judul}
-                </span>
-              </button>
+      {/* ===== DAMPAK BAGI KAMPUNG ===== */}
+      <section className="wadah bagian">
+        <div className="grid gap-14 lg:grid-cols-[1fr_1.25fr] lg:items-center">
+          <div>
+            <SectionHeading eyebrow={t('beranda.dampak.eyebrow')} judul={t('beranda.dampak.judul')} teks={t('beranda.dampak.teks')} />
+            <Link to="/pertanian" className="btn-garis mt-8">{t('beranda.dampak.ctaKebun')} <ArrowRight size={16} aria-hidden="true" /></Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {t('beranda.dampak.item').map(([ikon, judul, teks], i) => (
+              <div key={judul} className={`rounded-3xl p-7 ${i % 3 === 0 ? 'bg-white shadow-kartu ring-1 ring-hutan-900/[.06]' : 'bg-krem/70'}`}>
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-emas/15 text-emas-dark"><Ikon nama={ikon} size={21} /></span>
+                <p className="mt-5 font-display text-xl font-medium text-hutan-950">{judul}</p>
+                <p className="mt-2 text-sm leading-relaxed text-tinta/65">{teks}</p>
+              </div>
             ))}
           </div>
-          <Modal buka={!!lightbox} onTutup={() => setLightbox(null)} judul={lightbox?.judul || ''} lebar="max-w-3xl">
-            {lightbox && <ImgFallback src={lightbox.url_foto} alt={lightbox.judul} className="max-h-[70vh] w-full rounded-2xl object-contain" />}
+        </div>
+      </section>
+
+      {/* ===== PESONA KWAU ===== */}
+      {pesona?.length > 0 && (
+        <section className="pb-20 lg:pb-28">
+          <div className="wadah">
+            <SectionHeading eyebrow={t('beranda.pesona.eyebrow')} judul={t('beranda.pesona.judul')} teks={t('beranda.pesona.teks')} />
+          </div>
+          <div className="tanpa-scrollbar mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:px-6 lg:px-[max(2rem,calc((100vw-80rem)/2+2rem))] [-webkit-overflow-scrolling:touch]">
+            {pesona.map((f) => {
+              const judul = pick(f, 'judul');
+              return (
+                <button key={f.id} onClick={() => setLightbox(f)}
+                  className="group relative w-64 shrink-0 snap-start overflow-hidden rounded-3xl sm:w-80" aria-label={t('beranda.pesona.perbesar', { judul })}>
+                  <ImgFallback src={f.url_foto} alt={judul} className="aspect-[3/4] w-full object-cover transition duration-700 group-hover:scale-105" />
+                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-hutan-950/90 to-transparent px-5 pb-5 pt-16 text-left font-display text-lg text-kabut">
+                    {judul}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <Modal buka={!!lightbox} onTutup={() => setLightbox(null)} judul={lightbox ? pick(lightbox, 'judul') : ''} lebar="max-w-4xl">
+            {lightbox && <ImgFallback src={lightbox.url_foto} alt={pick(lightbox, 'judul')} className="max-h-[72vh] w-full rounded-2xl object-contain" />}
           </Modal>
         </section>
       )}
 
-      {/* ===== JEJAK WISATAWAN ===== */}
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <SectionHeading eyebrow="Jejak Wisatawan" judul="Yang mereka bawa pulang dari Kwau" teks="Foto dan cerita asli dari pengunjung — ditinjau dan ditayangkan secara transparan." />
-          <Link to="/jejak-wisatawan" className="btn-garis">Lihat Semua</Link>
-        </div>
+      {/* ===== CERITA PENGUNJUNG ===== */}
+      <section className="bg-white py-20 lg:py-28">
+        <div className="wadah">
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <SectionHeading eyebrow={t('beranda.jejak.eyebrow')} judul={t('beranda.jejak.judul')} teks={t('beranda.jejak.teks')} />
+            <Link to="/jejak-wisatawan" className="btn-garis">{t('umum.lihatSemua')}</Link>
+          </div>
 
-        {galeri && galeri.length > 0 ? (
-          <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {galeri.slice(0, 6).map((g) => (
-              <Link key={g.id} to="/jejak-wisatawan" className="group relative aspect-square overflow-hidden rounded-2xl">
-                <ImgFallback src={g.foto?.[0]?.url_foto} alt={`Foto oleh ${g.nama_pengunjung}`} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+          {testimoni.length > 0 && (
+            <div className="mt-12 grid gap-5 md:grid-cols-3">
+              {testimoni.map((g) => (
+                <figure key={g.id} className="flex flex-col rounded-3xl bg-kabut p-7 ring-1 ring-hutan-900/[.06]">
+                  <Quote size={28} className="text-emas" aria-hidden="true" />
+                  <blockquote className="mt-4 line-clamp-5 flex-1 font-display text-lg leading-relaxed text-hutan-950">{g.ulasan}</blockquote>
+                  <figcaption className="mt-6 flex items-center justify-between gap-3 border-t border-hutan-900/[.08] pt-5">
+                    <span className="text-sm font-bold text-hutan-900">{g.nama_pengunjung}{g.asal ? <span className="font-medium text-tinta/50"> · {g.asal}</span> : ''}</span>
+                    <StarRating nilai={g.rating} ukuran="text-sm" />
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          )}
+
+          {galeri?.length > 0 ? (
+            <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              {galeri.slice(0, 6).map((g) => (
+                <Link key={g.id} to="/jejak-wisatawan" className="group relative aspect-square overflow-hidden rounded-2xl">
+                  <ImgFallback src={g.foto?.[0]?.url_foto} alt={t('beranda.jejak.fotoOleh', { nama: g.nama_pengunjung })} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-10 text-sm text-tinta/50">{t('beranda.jejak.kosong')}</p>
+          )}
+        </div>
+      </section>
+
+      {/* ===== KABAR TERBARU ===== */}
+      {kabar?.length > 0 && (
+        <section className="wadah bagian">
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <SectionHeading eyebrow={t('beranda.kabar.eyebrow')} judul={t('beranda.kabar.judul')} />
+            <Link to="/informasi" className="tautan">{t('info.semuaInfo')} →</Link>
+          </div>
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {kabar.map((b) => (
+              <Link key={b.id} to={`/informasi/${b.id}`} className="group">
+                <div className="aspect-[16/10] overflow-hidden rounded-3xl">
+                  <ImgFallback src={b.foto_sampul} alt="" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+                </div>
+                <p className="mt-5 text-xs font-bold uppercase tracking-wider text-emas-dark">
+                  {t(`kategoriBerita.${b.kategori}`)} · <span className="text-tinta/45">{formatTanggalPendek(b.tanggal_terbit, locale)}</span>
+                </p>
+                <h3 className="mt-2 font-display text-xl font-medium leading-snug text-hutan-950 transition group-hover:text-hutan-700">{pick(b, 'judul')}</h3>
               </Link>
             ))}
           </div>
-        ) : (
-          <p className="mt-8 text-sm text-tinta/50">Galeri akan terisi dari kiriman para pengunjung.</p>
-        )}
+        </section>
+      )}
 
-        {testimoni.length > 0 && (
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {testimoni.map((t) => (
-              <figure key={t.id} className="kartu p-6">
-                <StarRating nilai={t.rating} />
-                <blockquote className="mt-3 line-clamp-4 text-sm leading-relaxed text-tinta/75">"{t.ulasan}"</blockquote>
-                <figcaption className="mt-4 text-xs font-bold uppercase tracking-wider text-hutan-700">
-                  {t.nama_pengunjung}{t.asal ? ` · ${t.asal}` : ''}
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* ===== AJAKAN KONTRIBUSI ===== */}
-      <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-hutan-800 to-hutan-950 px-6 py-14 text-center sm:px-12">
-          <GarisKontur className="absolute inset-x-0 bottom-0 h-32 w-full text-emas/70" />
-          <h2 className="relative mx-auto max-w-xl text-3xl font-semibold text-kabut sm:text-4xl">
-            Pernah berkunjung ke Kwau?
-          </h2>
-          <p className="relative mx-auto mt-3 max-w-md text-kabut/70">
-            Bagikan foto dan cerita Anda — jadilah bagian dari jejak yang membantu kampung ini terus menjaga hutannya.
-          </p>
-          <Link to="/jejak-wisatawan" className="btn-emas relative mt-8">Bagikan Pengalaman Anda</Link>
+      {/* ===== AJAKAN BERBAGI ===== */}
+      <section className="wadah pb-24">
+        <div className="relative isolate overflow-hidden rounded-[2rem] bg-hutan-900 px-6 py-16 text-center sm:px-12 lg:py-20">
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_0%,rgba(201,134,44,.25),transparent_60%)]" />
+          <GarisKontur className="absolute inset-x-0 bottom-0 -z-10 h-32 w-full text-emas/50" />
+          <h2 className="mx-auto max-w-xl text-3xl font-medium text-kabut sm:text-5xl">{t('beranda.ajakan.judul')}</h2>
+          <p className="mx-auto mt-4 max-w-lg text-kabut/70">{t('beranda.ajakan.teks')}</p>
+          <Link to="/jejak-wisatawan" className="btn-emas mt-9">{t('beranda.ajakan.tombol')}</Link>
         </div>
       </section>
     </>
