@@ -54,7 +54,7 @@ export default function EditorStatis({ slugs, keterangan }) {
       {aktif ? (
         <form onSubmit={simpan} className="kartu space-y-4 p-6">
           <div className="flex gap-1.5">
-            {[['id', 'Bahasa Indonesia'], ['en', '🇬🇧 English (opsional)']].map(([v, label]) => (
+            {[['id', 'Bahasa Indonesia'], ['en', 'English (opsional)']].map(([v, label]) => (
               <button key={v} type="button" onClick={() => setTab(v)}
                 className={`rounded-full px-4 py-2 text-xs font-bold transition ${tab === v ? 'bg-hutan-900 text-kabut' : 'bg-hutan-100/60 text-hutan-900 hover:bg-hutan-100'}`}>
                 {label}

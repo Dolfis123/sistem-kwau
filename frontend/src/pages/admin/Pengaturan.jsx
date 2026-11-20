@@ -5,6 +5,7 @@ import { useToast } from '../../components/common/Toast';
 import { useAuth } from '../../context/AuthContext';
 import Loader from '../../components/common/Loader';
 import InputPassword from '../../components/common/InputPassword';
+import { resetPengaturan } from '../../hooks/usePengaturan';
 
 export default function Pengaturan() {
   const toast = useToast();
@@ -21,6 +22,7 @@ export default function Pengaturan() {
     setProses(true);
     try {
       await kontenApi.setPengaturan(form);
+      resetPengaturan();
       toast('Pengaturan sistem disimpan.');
     } catch (err) { toast(err.response?.data?.message || 'Gagal menyimpan (hanya Superadmin).', 'error'); }
     finally { setProses(false); }
@@ -44,10 +46,10 @@ export default function Pengaturan() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="font-display text-2xl font-semibold text-hutan-950">Pengaturan</h1>
+      <h1 className="admin-judul">Pengaturan</h1>
 
       {admin?.role === 'superadmin' && (
-        <form onSubmit={simpanPengaturan} className="kartu mt-6 space-y-4 p-6">
+        <form onSubmit={simpanPengaturan} className="admin-panel mt-6 space-y-4 p-6">
           <h2 className="font-display text-lg font-semibold text-hutan-950">Info Kontak Resmi Sistem</h2>
           <div>
             <label className="label" htmlFor="p-wa">Nomor WhatsApp Utama Pokdarwis</label>
@@ -87,7 +89,7 @@ export default function Pengaturan() {
         </form>
       )}
 
-      <form onSubmit={gantiPassword} className="kartu mt-6 space-y-4 p-6">
+      <form onSubmit={gantiPassword} className="admin-panel mt-6 space-y-4 p-6">
         <h2 className="font-display text-lg font-semibold text-hutan-950">Ganti Password Akun Saya</h2>
         <div>
           <label className="label" htmlFor="pw-lama">Password Lama</label>

@@ -26,13 +26,13 @@ export default function ManajemenKonten() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-semibold text-hutan-950">Manajemen Konten Wisata</h1>
-      <p className="mt-1 text-sm text-tinta/55">Satwa, homestay, galeri pesona, FAQ, dan halaman statis wisata. Berita kampung dikelola oleh Pegawai Kampung di menu Informasi Kampung.</p>
+      <h1 className="admin-judul">Manajemen Konten Wisata</h1>
+      <p className="admin-sub">Satwa, homestay, galeri pesona, FAQ, dan halaman statis wisata. Berita kampung dikelola oleh Pegawai Kampung di menu Informasi Kampung.</p>
 
-      <div className="mb-6 mt-5 flex flex-wrap gap-1.5">
+      <div className="admin-tabs mb-6 mt-5">
         {TAB.map(([v, label]) => (
           <button key={v} onClick={() => setTab(v)}
-            className={`rounded-full px-4 py-2 text-xs font-bold transition ${tab === v ? 'bg-hutan-900 text-kabut' : 'bg-white text-hutan-900 shadow-sm hover:bg-hutan-100'}`}>
+            className={`admin-tab ${tab === v ? 'admin-tab-aktif' : 'admin-tab-pasif'}`}>
             {label}
           </button>
         ))}

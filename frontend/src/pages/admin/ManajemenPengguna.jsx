@@ -83,8 +83,8 @@ export default function ManajemenPengguna() {
     <div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-semibold text-hutan-950">Pengguna Admin</h1>
-          <p className="mt-1 text-sm text-tinta/55">
+          <h1 className="admin-judul">Pengguna Admin</h1>
+          <p className="admin-sub">
             Khusus Superadmin. Setiap role hanya melihat menu sesuai tanggung jawabnya. Akun superadmin hanya dapat dibuat dari server.
           </p>
         </div>
@@ -92,7 +92,7 @@ export default function ManajemenPengguna() {
       </div>
 
       {loading ? <Loader /> : (
-        <div className="mt-5 overflow-x-auto rounded-2xl bg-white shadow-sm">
+        <div className="admin-panel mt-5 overflow-x-auto">
           <table className="w-full min-w-[680px] text-sm">
             <thead>
               <tr className="border-b border-hutan-900/10 text-left text-[11px] font-bold uppercase tracking-wider text-tinta/50">
@@ -123,7 +123,7 @@ export default function ManajemenPengguna() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     {bolehKelola(a) ? (
-                      <div className="inline-flex gap-1.5">
+                      <div className="inline-flex flex-wrap justify-end gap-1.5">
                         <button onClick={() => bukaEdit(a)} className="rounded-full bg-hutan-100 px-3.5 py-1.5 text-xs font-bold text-hutan-800 hover:bg-hutan-200">Edit</button>
                         <button onClick={() => setReset(a)} className="rounded-full bg-sky-100 px-3.5 py-1.5 text-xs font-bold text-sky-800 hover:bg-sky-200">Reset Password</button>
                         <button onClick={() => toggleAktif(a)} className="rounded-full bg-amber-100 px-3.5 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-200">
@@ -131,7 +131,7 @@ export default function ManajemenPengguna() {
                         </button>
                       </div>
                     ) : (
-                      <span className="text-[11px] font-semibold text-tinta/35">🔒 Dilindungi</span>
+                      <span className="text-[11px] font-semibold text-tinta/35">Dilindungi</span>
                     )}
                   </td>
                 </tr>

@@ -58,7 +58,7 @@ export default function ManajemenPaket() {
 
   return (
     <div>
-      <h1 className="mb-6 font-display text-2xl font-semibold text-hutan-950">Manajemen Paket Wisata</h1>
+      <h1 className="admin-judul mb-6">Manajemen Paket Wisata</h1>
       <AdminCrud
         judul="Paket Wisata"
         deskripsi="Paket yang berstatus aktif otomatis tampil di halaman publik."
