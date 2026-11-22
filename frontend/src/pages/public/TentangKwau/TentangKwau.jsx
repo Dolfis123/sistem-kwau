@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { Languages } from 'lucide-react';
+import { Languages, ArrowRight } from 'lucide-react';
+import Modal from '../../../components/common/Modal';
 import useFetch from '../../../hooks/useFetch';
 import useKonten, { baris } from '../../../hooks/useKonten';
 import { satwaApi, tokohApi } from '../../../services/api';
@@ -34,6 +35,12 @@ export default function TentangKwau() {
   const [pageSatwa, setPageSatwa] = useState(1);
   const { data: satwa, meta: metaSatwa } = useFetch(() => satwaApi.list({ page: pageSatwa, limit: 9 }), [pageSatwa]);
   const { data: tokoh } = useFetch(() => tokohApi.listPublik(), []);
+  const [detailSatwa, setDetailSatwa] = useState(null);
+
+  // Mode EN: nama Inggris jadi judul, nama lokal jadi keterangan
+  const namaSatwa = (s) => (lang === 'en' && s.nama_en
+    ? { namaUtama: s.nama_en, namaKedua: s.nama_lokal }
+    : { namaUtama: s.nama_lokal, namaKedua: null });
 
   // Aturan berkunjung: versi EN dari admin → bawaan EN; versi ID dari admin → bawaan ID
   const teksAturan = lang === 'en' ? aturan?.isi_en : aturan?.isi;
@@ -107,32 +114,65 @@ export default function TentangKwau() {
         <SectionHeading eyebrow={t('tentang.satwaEyebrow')} judul={t('tentang.satwaJudul')} teks={t('tentang.satwaTeks')} />
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {(satwa || []).map((s) => {
-            const namaUtama = lang === 'en' && s.nama_en ? s.nama_en : s.nama_lokal;
-            const namaKedua = lang === 'en' && s.nama_en ? s.nama_lokal : null;
+            const { namaUtama, namaKedua } = namaSatwa(s);
             return (
-              <article key={s.id} className="kartu kartu-hover flex flex-col">
-                <div className="aspect-[4/3] overflow-hidden"><ImgFallback src={s.foto} alt={namaUtama} className="h-full w-full object-cover" /></div>
-                <div className="flex flex-1 flex-col p-6">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-display text-xl font-medium text-hutan-950">{namaUtama}</h3>
-                      <p className="mt-0.5 text-xs text-tinta/50">
-                        {s.nama_ilmiah && <em>{s.nama_ilmiah}</em>}
-                        {namaKedua && <span> · {namaKedua}</span>}
-                      </p>
-                    </div>
-                    {s.status_konservasi && (
-                      <span className="chip shrink-0 bg-emas/15 text-emas-dark">{s.status_konservasi}</span>
-                    )}
-                  </div>
-                  {pick(s, 'deskripsi') && <p className="mt-3 line-clamp-4 text-sm leading-relaxed text-tinta/70">{pick(s, 'deskripsi')}</p>}
+              <button key={s.id} type="button" onClick={() => setDetailSatwa(s)}
+                className="kartu kartu-hover group flex flex-col text-left" aria-label={`${t('tentang.satwaBaca')}: ${namaUtama}`}>
+                <div className="aspect-[4/3] w-full overflow-hidden">
+                  <ImgFallback src={s.foto} alt={namaUtama} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
                 </div>
-              </article>
+                <div className="flex w-full flex-1 flex-col p-6">
+                  <h3 className="font-display text-xl font-medium text-hutan-950">{namaUtama}</h3>
+                  <p className="mt-0.5 text-xs text-tinta/50">
+                    {s.nama_ilmiah && <em>{s.nama_ilmiah}</em>}
+                    {namaKedua && <span>{s.nama_ilmiah ? ' · ' : ''}{namaKedua}</span>}
+                  </p>
+                  {s.status_konservasi && (
+                    <span className="chip mt-3 self-start bg-emas/15 text-emas-dark">{s.status_konservasi}</span>
+                  )}
+                  {pick(s, 'deskripsi') && <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-tinta/70">{pick(s, 'deskripsi')}</p>}
+                  <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-bold text-hutan-800 transition group-hover:text-emas-dark">
+                    {t('tentang.satwaBaca')} <ArrowRight size={15} className="transition group-hover:translate-x-1" aria-hidden="true" />
+                  </span>
+                </div>
+              </button>
             );
           })}
           {(!satwa || satwa.length === 0) && <p className="text-sm text-tinta/50">{t('tentang.satwaKosong')}</p>}
         </div>
         <Pagination meta={metaSatwa} page={pageSatwa} onPage={setPageSatwa} />
+
+        {/* Detail satwa: foto besar + deskripsi lengkap */}
+        <Modal buka={!!detailSatwa} onTutup={() => setDetailSatwa(null)} judul={detailSatwa ? namaSatwa(detailSatwa).namaUtama : ''} lebar="max-w-3xl">
+          {detailSatwa && (() => {
+            const { namaUtama, namaKedua } = namaSatwa(detailSatwa);
+            return (
+              <div>
+                {detailSatwa.foto && (
+                  <div className="overflow-hidden rounded-2xl bg-hutan-950">
+                    <ImgFallback src={detailSatwa.foto} alt={namaUtama} className="max-h-[55vh] w-full object-contain" />
+                  </div>
+                )}
+                <dl className="mt-5 flex flex-wrap gap-x-8 gap-y-3 text-sm">
+                  {detailSatwa.nama_ilmiah && (
+                    <div><dt className="text-[11px] font-bold uppercase tracking-wider text-tinta/45">{t('tentang.namaIlmiah')}</dt><dd className="mt-0.5 italic text-hutan-950">{detailSatwa.nama_ilmiah}</dd></div>
+                  )}
+                  {namaKedua && (
+                    <div><dt className="text-[11px] font-bold uppercase tracking-wider text-tinta/45">{t('tentang.namaLokal')}</dt><dd className="mt-0.5 text-hutan-950">{namaKedua}</dd></div>
+                  )}
+                  {detailSatwa.status_konservasi && (
+                    <div><dt className="text-[11px] font-bold uppercase tracking-wider text-tinta/45">{t('tentang.statusKonservasi')}</dt>
+                      <dd className="mt-1"><span className="chip bg-emas/15 text-emas-dark">{detailSatwa.status_konservasi}</span></dd></div>
+                  )}
+                </dl>
+                <CatatanBahasa tampil={belumDiterjemahkan(detailSatwa, 'deskripsi')} />
+                {pick(detailSatwa, 'deskripsi') && (
+                  <p className="mt-5 whitespace-pre-line text-[15px] leading-relaxed text-tinta/80">{pick(detailSatwa, 'deskripsi')}</p>
+                )}
+              </div>
+            );
+          })()}
+        </Modal>
       </section>
 
       {/* Aturan berkunjung */}
